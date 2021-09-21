@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MenuCategory\MenuCategoryCollection;
+use App\Http\Resources\MenuCategory\MenuCategoryResource;
 use App\MenuCategory;
 use Illuminate\Http\Request;
 
@@ -44,9 +46,19 @@ class MenuCategoryController extends Controller
      * @param  \App\MenuCategory  $menuCategory
      * @return \Illuminate\Http\Response
      */
-    public function show(MenuCategory $menuCategory)
+    public function show(MenuCategory $menuCategory, Request $request)
     {
-        //
+        if (is_null($request->restaurant_id)) {
+            return response()->json(['message' => 'restaurant_id route parameter is required'], 400);
+        }
+
+        $data = $menuCategory->where('restaurant_id', $request->restaurant_id)->get();
+
+        if (count($data) == 0) {
+            return response()->json(['message' => 'restaurant_id is invalid'], 404);
+        }
+
+        return new MenuCategoryCollection($data, 200);
     }
 
     /**

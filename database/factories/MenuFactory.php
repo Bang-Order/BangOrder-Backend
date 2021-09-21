@@ -12,7 +12,7 @@ $factory->define(Menu::class, function (Faker $faker) {
         'name' => $faker->name(),
         'description' => $faker->sentence(6),
         'price' => $faker->numberBetween($min = 10000, $max = 60000),
-        'image' => $faker->imageUrl($width = 640, $height = 480),
+        'image' => 'https://picsum.photos/250?image=' . rand(25, 200),
         'is_recommendation' => $faker->boolean(25)
     ];
 });
