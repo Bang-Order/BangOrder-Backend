@@ -1,5 +1,6 @@
 <?php
 
+use App\Menu;
 use Illuminate\Database\Seeder;
 
 class MenuSeeder extends Seeder
@@ -11,6 +12,6 @@ class MenuSeeder extends Seeder
      */
     public function run()
     {
-        //
+        factory(Menu::class, 50)->create();
     }
 }

@@ -15,7 +15,13 @@ class CreateMenusTable extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->unsignedBigInteger('restaurant_id');
+            $table->unsignedBigInteger('category_id');
+            $table->string('name');
+            $table->text('description');
+            $table->integer('price');
+            $table->string('image');
+            $table->boolean('is_recommendation');
         });
     }
 
