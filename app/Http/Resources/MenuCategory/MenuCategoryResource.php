@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\MenuCategory;
 
+use App\Http\Resources\Menu\MenuResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MenuCategoryResource extends JsonResource
@@ -16,8 +17,8 @@ class MenuCategoryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'restaurant_id' => $this->restaurant_id,
             'name' => $this->name,
+            // 'menu' => MenuResource::collection($this->menus)
         ];
     }
 }

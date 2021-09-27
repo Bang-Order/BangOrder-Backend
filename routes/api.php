@@ -18,6 +18,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/menu-category','MenuCategoryController@show');
+Route::get('/menu-category', 'MenuCategoryController@index');
+Route::get('/menu-category/{id}', 'MenuCategoryController@show');
+Route::post('/menu-category', 'MenuCategoryController@store');
+Route::put('/menu-category', 'MenuCategoryController@update');
+Route::delete('/menu-category', 'MenuCategoryController@destroy');
 
-Route::get('/menu','MenuController@show');
+Route::get('/menu', 'MenuController@index');
+
+// Route::get('/mobile/homepage', 'MenuCategoryController@');

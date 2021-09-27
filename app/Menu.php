@@ -7,14 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Menu extends Model
 {
     public $timestamps = false;
-    
+
+    protected $guarded = [];
+
     public function restaurant()
     {
-        return $this->belongsTo(Restaurant::class);
+        return $this->belongsTo('App\Restaurant');
     }
 
     public function menuCategory()
     {
-        return $this->belongsTo(MenuCategory::class);
+        return $this->belongsTo('App\MenuCategory');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany('App\OrderItem');
     }
 }

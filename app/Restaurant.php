@@ -7,24 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Restaurant extends Model
 {
     public $timestamps = false;
+
+    protected $guarded = [];
     
     public function menus()
     {
-        return $this->hasMany(Menu::class);
+        return $this->hasMany('App\Menu');
     }
 
     public function restaurantTables()
     {
-        return $this->hasMany(RestaurantTable::class);
+        return $this->hasMany('App\RestaurantTable');
     }
 
     public function menuCategories()
     {
-        return $this->hasMany(MenuCategory::class);
-    }
-
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
+        return $this->hasMany('App\MenuCategory');
     }
 }
