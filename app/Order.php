@@ -6,10 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    public $timestamps = false;
+    protected $guarded = ['id', 'restaurant_id', 'table_id'];
 
-    protected $guarded = [];
-    
     public function restaurantTable()
     {
         return $this->belongsTo('App\RestaurantTable');

@@ -2,14 +2,23 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Restaurant extends Model
+class Restaurant extends Authenticatable
 {
-    public $timestamps = false;
+    use Notifiable;
 
-    protected $guarded = [];
-    
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    protected $guarded = ['id'];
+
     public function menus()
     {
         return $this->hasMany('App\Menu');
