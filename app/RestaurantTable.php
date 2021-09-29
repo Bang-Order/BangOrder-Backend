@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class RestaurantTable extends Model
 {
-    public $timestamps = false;
-
     protected $guarded = ['id', 'restaurant_id'];
 
     public function restaurant()
