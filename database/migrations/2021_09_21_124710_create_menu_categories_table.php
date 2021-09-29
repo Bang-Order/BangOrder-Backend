@@ -15,7 +15,7 @@ class CreateMenuCategoriesTable extends Migration
     {
         Schema::create('menu_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->constrained();
+            $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->timestamps();
         });
