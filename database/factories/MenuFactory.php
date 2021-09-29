@@ -18,6 +18,7 @@ $factory->define(Menu::class, function (Faker $faker) {
         'description' => $faker->sentence(6),
         'price' => $faker->numberBetween($min = 10000, $max = 60000),
         'image' => 'https://picsum.photos/250?image=' . rand(25, 200),
-        'is_recommendation' => $faker->boolean(25)
+        'is_available' => $faker->boolean(),
+        'is_recommended' => $faker->boolean(25)
     ];
 });

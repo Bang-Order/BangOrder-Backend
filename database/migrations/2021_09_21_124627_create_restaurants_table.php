@@ -20,7 +20,7 @@ class CreateRestaurantsTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('telephone_number');
-            $table->string('address');
+            $table->text('address');
             $table->string('image');
             $table->rememberToken();
             $table->timestamps();
