@@ -8,8 +8,8 @@ class RestaurantTable extends Model
 {
     public $timestamps = false;
 
-    protected $guarded = [];
-    
+    protected $guarded = ['id', 'restaurant_id'];
+
     public function restaurant()
     {
         return $this->belongsTo('App\Restaurant');

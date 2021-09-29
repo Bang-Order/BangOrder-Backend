@@ -8,8 +8,8 @@ class Restaurant extends Model
 {
     public $timestamps = false;
 
-    protected $guarded = [];
-    
+    protected $guarded = ['id'];
+
     public function menus()
     {
         return $this->hasMany('App\Menu');
