@@ -5,102 +5,98 @@ namespace App\Http\Controllers;
 use App\Http\Resources\MenuCategory\MenuCategoryCollection;
 use App\Http\Resources\MenuCategory\MenuCategoryResource;
 use App\MenuCategory;
+use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Validator as ValidationValidator;
 
 class MenuCategoryController extends Controller
 {
-    public function index(Request $request)
+    public function index(Restaurant $restaurant)
     {
-        if (is_null($request->restaurant_id)) {
-            return response()->json(['message' => 'restaurant_id route parameter is required'], 400);
-        }
-
-        $data = MenuCategory::where('restaurant_id', $request->restaurant_id)->get();
-
-        if (count($data) == 0) {
-            return response()->json(['message' => 'restaurant_id not found'], 404);
-        }
-
-        return new MenuCategoryCollection($data);
+        return new MenuCategoryCollection($restaurant->menuCategories()->get());
     }
 
-    public function store(Request $request)
-    {
-        $validator1 = Validator::make($request->all(), [
-            'restaurant_id' => ['required', 'numeric'],
-            'name' => ['required', 'string']
-        ]);
-        if ($validator1->fails()) {
-            return response()->json($validator1->errors(), 400);
-        }
-
-        $validator2 = MenuCategory::find($request->restaurant_id);
-        if (is_null($validator2)) {
-            return response()->json(['message' => "data id {$request->restaurant_id} not found"], 404);
-        }
-
-        MenuCategory::create($request->all());
-
-        return response()->json(['message' => 'success'], 201);
-    }
-
-    public function show(MenuCategory $menuCategory, Request $request)
-    {
-        if (is_null($request->id)) {
-            return response()->json(['message' => 'category_id route parameter is required'], 400);
-        }
-        
-        $data = $menuCategory->find($request->id);
-
-        if (is_null($data)) {
-            return response()->json(['message' => 'data not found'], 404);
-        }
-
-        return new MenuCategoryResource($data);
-    }
-
-    public function update(Request $request, MenuCategory $menuCategory)
+    public function store(Restaurant $restaurant, Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => ['required', 'numeric'],
-            'restaurant_id' => ['required', 'numeric'],
             'name' => ['required', 'string']
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $data = $menuCategory->find($request->id);
-        if (is_null($data)) {
-            return response()->json(['message' => "id {$request->id} not found"], 404);
+        $inserted_data = $restaurant->menuCategories()->create($request->all());
+
+        if (is_null($inserted_data)) {
+            return response()->json(['message' => 'Insert failed'], 400);
+        } else {
+            return response()->json(['message' => 'Data successfully added', 'data' => $inserted_data], 201);
         }
-
-        $data->update($request->all());
-
-        return response()->json(['message' => 'success']);
     }
 
-    public function destroy(Request $request, MenuCategory $menuCategory)
+    public function show(Restaurant $restaurant, MenuCategory $menuCategory)
+    {
+        if ($restaurant->id != $menuCategory->restaurant_id) {
+            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 400);
+        }
+
+        return new MenuCategoryResource($menuCategory);
+    }
+
+    public function update(Restaurant $restaurant, MenuCategory $menuCategory, Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => ['required', 'numeric'],
+            'name' => ['required', 'string']
         ]);
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
 
-        $data = $menuCategory->find($request->id);
-
-        if (is_null($data)) {
-            return response()->json(['message' => "id {$request->id} not found"], 404);
+        if ($restaurant->id != $menuCategory->restaurant_id) {
+            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 400);
         }
 
-        $data->delete();
+        $updated_data = $menuCategory->update($request->all());
 
-        return response()->json([
-            'message' => 'success'
-        ]);
+        if ($updated_data) {
+            return response()->json(['message' => 'Data successfully updated', 'data' => $menuCategory]);
+        } else {
+            return response()->json(['message' => 'Update failed'], 400);
+        }
+    }
+
+    public function destroy(Restaurant $restaurant, MenuCategory $menuCategory)
+    {
+//        $validator = Validator::make($request->all(), [
+//            'id' => ['required', 'numeric'],
+//        ]);
+//        if ($validator->fails()) {
+//            return response()->json($validator->errors(), 400);
+//        }
+//
+//        $data = $menuCategory->find($request->id);
+//
+//        if (is_null($data)) {
+//            return response()->json(['message' => "id {$request->id} not found"], 404);
+//        }
+//
+//        $data->delete();
+//
+//        return response()->json([
+//            'message' => 'success'
+//        ]);
+
+        if ($restaurant->id != $menuCategory->restaurant_id) {
+            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 400);
+        }
+
+        $deleted_data = $menuCategory->delete();
+
+        if ($deleted_data) {
+            return response()->json(['message' => 'Data successfully deleted']);
+        } else {
+            return response()->json(['message' => 'Delete failed'], 400);
+        }
     }
 }

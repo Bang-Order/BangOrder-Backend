@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'api',
         'passwords' => 'restaurants',
     ],
 
@@ -66,7 +66,7 @@ return [
     */
 
     'providers' => [
-        'users' => [
+        'restaurants' => [
             'driver' => 'eloquent',
             'model' => App\Restaurant::class,
         ],
@@ -93,7 +93,7 @@ return [
     */
 
     'passwords' => [
-        'users' => [
+        'restaurants' => [
             'provider' => 'restaurants',
             'table' => 'password_resets',
             'expire' => 60,

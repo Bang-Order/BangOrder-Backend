@@ -14,15 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:api')->get('/restaurant', function (Request $request) {
+    return $request->restaurant();
 });
 
-Route::get('/menu-category', 'MenuCategoryController@index');
-Route::get('/menu-category/{id}', 'MenuCategoryController@show');
-Route::post('/menu-category', 'MenuCategoryController@store');
-Route::put('/menu-category', 'MenuCategoryController@update');
-Route::delete('/menu-category', 'MenuCategoryController@destroy');
+//Route::get('/menu-category', 'MenuCategoryController@index');
+//Route::get('/menu-category/{id}', 'MenuCategoryController@show');
+//Route::post('/menu-category', 'MenuCategoryController@store');
+//Route::put('/menu-category', 'MenuCategoryController@update');
+//Route::delete('/menu-category', 'MenuCategoryController@destroy');
+
+Route::apiResource('restaurants.menu-categories', 'MenuCategoryController');
 
 Route::get('/menu', 'MenuController@index');
 

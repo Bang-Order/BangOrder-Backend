@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MenuCategory extends Model
 {
-    protected $guarded = ['id', 'restaurant_id'];
+    protected $guarded = ['id'];
 
     public function restaurant()
     {
