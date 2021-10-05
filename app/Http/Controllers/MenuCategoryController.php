@@ -38,7 +38,7 @@ class MenuCategoryController extends Controller
     public function show(Restaurant $restaurant, MenuCategory $menuCategory)
     {
         if ($restaurant->id != $menuCategory->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 400);
+            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 404);
         }
 
         return new MenuCategoryResource($menuCategory);
@@ -54,7 +54,7 @@ class MenuCategoryController extends Controller
         }
 
         if ($restaurant->id != $menuCategory->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 400);
+            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 404);
         }
 
         $updated_data = $menuCategory->update($request->all());
@@ -68,27 +68,8 @@ class MenuCategoryController extends Controller
 
     public function destroy(Restaurant $restaurant, MenuCategory $menuCategory)
     {
-//        $validator = Validator::make($request->all(), [
-//            'id' => ['required', 'numeric'],
-//        ]);
-//        if ($validator->fails()) {
-//            return response()->json($validator->errors(), 400);
-//        }
-//
-//        $data = $menuCategory->find($request->id);
-//
-//        if (is_null($data)) {
-//            return response()->json(['message' => "id {$request->id} not found"], 404);
-//        }
-//
-//        $data->delete();
-//
-//        return response()->json([
-//            'message' => 'success'
-//        ]);
-
         if ($restaurant->id != $menuCategory->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 400);
+            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 404);
         }
 
         $deleted_data = $menuCategory->delete();
