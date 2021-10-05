@@ -18,7 +18,10 @@ Route::middleware('auth:api')->get('/restaurant', function (Request $request) {
     return $request->restaurant();
 });
 
-Route::apiResource('restaurants.menu-categories', 'MenuCategoryController');
+Route::apiResources([
+    'restaurants.menu-categories' => 'MenuCategoryController',
+    'restaurants.menus' => 'MenuController',
+]);
 
 Route::get('/menu', 'MenuController@index');
 
