@@ -21,8 +21,8 @@ class CreateMenusTable extends Migration
             $table->text('description')->nullable();
             $table->integer('price');
             $table->string('image')->nullable();
-            $table->boolean('is_available');
-            $table->boolean('is_recommended');
+            $table->boolean('is_available')->default(true);
+            $table->boolean('is_recommended')->default(false);
             $table->timestamps();
         });
     }
