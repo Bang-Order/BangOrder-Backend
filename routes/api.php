@@ -20,6 +20,6 @@ Route::middleware('auth:api')->get('/restaurant', function (Request $request) {
 
 Route::apiResource('restaurants.menu-categories', 'MenuCategoryController');
 
-Route::get('/menu', 'MenuController@index');
+Route::apiResource('restaurants.orders', 'OrderController');
 
-// Route::get('/mobile/homepage', 'MenuCategoryController@');
+Route::get('/menu', 'MenuController@index');
