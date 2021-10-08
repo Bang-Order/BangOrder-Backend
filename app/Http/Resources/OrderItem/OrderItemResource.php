@@ -17,7 +17,7 @@ class OrderItemResource extends JsonResource
         return [
             'name' => $this->menu->name,
             'quantity' => $this->quantity,
-            'price' => 'Rp' . number_format($this->quantity * $this->menu->price, 0, ',', '.'),
+            'price' => number_format($this->quantity * $this->menu->price, 0, ',', '.'),
             'notes' => $this->notes,
         ];
     }

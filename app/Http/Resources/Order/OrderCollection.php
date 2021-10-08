@@ -15,11 +15,6 @@ class OrderCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return [
-            'data' => OrderResource::collection($this->collection),
-            'meta' => [
-                'data_length' => $this->collection->count()
-            ]
-        ];
+        return OrderResource::collection($this->collection);
     }
 }
