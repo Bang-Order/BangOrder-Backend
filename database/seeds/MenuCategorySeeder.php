@@ -13,6 +13,5 @@ class MenuCategorySeeder extends Seeder
     public function run()
     {
         factory(MenuCategory::class, 10)->create();
-        // MenuCategory::factory(7)->create();
     }
 }

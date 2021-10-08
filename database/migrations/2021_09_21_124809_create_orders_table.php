@@ -16,7 +16,7 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('restaurant_id')->constrained();
-            $table->foreignId('table_id')->constrained('restaurant_tables');
+            $table->foreignId('restaurant_table_id')->constrained();
             $table->integer('total_price');
             $table->string('transaction_id')->unique();
             $table->string('order_status')->default('antri');
