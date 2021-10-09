@@ -18,11 +18,14 @@ Route::middleware('auth:api')->get('/restaurant', function (Request $request) {
     return $request->restaurant();
 });
 
+Route::get('/restaurants/{restaurant}/orders/history', 'OrderController@indexAll');
+
 Route::apiResources([
     'restaurants.menu-categories' => 'MenuCategoryController',
     'restaurants.menus' => 'MenuController',
+    'restaurants.orders' => 'OrderController'
 ]);
 
-Route::apiResource('restaurants.orders', 'OrderController');
+//Route::apiResource('restaurants.orders', 'OrderController');
 
-Route::get('/menu', 'MenuController@index');
+//Route::get('/menu', 'MenuController@index');
