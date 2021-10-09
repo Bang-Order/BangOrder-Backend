@@ -9,30 +9,40 @@ use App\Menu;
 use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Validator as ValidationValidator;
 
 class MenuController extends Controller
 {
     public function index(Restaurant $restaurant, Request $request) {
-        if ($request->search) {
-            $data = $restaurant->menus()->where(
-                DB::raw('lower(name)'), 'like', '%' . strtolower($request->search) . '%'
-            )->get();
-        } elseif ($request->menu_category_id) {
+        if ($request->menu_category_id) {
             $menuCategory = $restaurant->menuCategories()->find($request->menu_category_id);
             if (!$menuCategory) {
                 return response()->json([
                     'message' => 'Menu Category ID is invalid'], 404
                 );
             }
-            $data = $menuCategory->menus()->get();
+            $data = $menuCategory->menus();
         } else {
-            $data = $restaurant->menus()->get();
+            $data = $restaurant->menus();
         }
-        if ($data->isEmpty()) {
-            return response()->json(['message' => 'Data Not Found!'], 404);
+        if ($request->search) {
+            $data = $data->where(
+                DB::raw('lower(name)'), 'like', '%' . strtolower($request->search) . '%'
+            );
         }
+        if ($request->filter) {
+            switch ($request->filter) {
+                case 'recommendation' :
+                    $data = $data->where('is_recommended', 1);
+                    break;
+                case 'available' :
+                    $data = $data->where('is_available', 1);
+                    break;
+                case 'unavailable' :
+                    $data = $data->where('is_available', 0);
+            }
+        }
+        $data = $data->get();
+
         return new MenuCollection($data);
     }
 
@@ -46,7 +56,7 @@ class MenuController extends Controller
 
         $inserted_data = $restaurant->menus()->create($request->validated());
 
-        if (is_null($inserted_data)) {
+        if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
             return response()->json(['message' => 'Data successfully added', 'data' => $inserted_data], 201);
@@ -74,7 +84,6 @@ class MenuController extends Controller
         }
 
         $updated_data = $menu->update($request->validated());
-
         if ($updated_data) {
             return response()->json(['message' => 'Data successfully updated', 'data' => $menu]);
         } else {

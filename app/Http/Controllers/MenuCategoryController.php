@@ -12,13 +12,13 @@ use Illuminate\Http\Request;
 class MenuCategoryController extends Controller
 {
     public function index(Restaurant $restaurant) {
-        return new MenuCategoryCollection($restaurant->menuCategories()->get());
+        return new MenuCategoryCollection($restaurant->menuCategories()->orderBy('name')->get());
     }
 
     public function store(Restaurant $restaurant, MenuCategoryRequest $request) {
         $inserted_data = $restaurant->menuCategories()->create($request->validated());
 
-        if (is_null($inserted_data)) {
+        if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
             return response()->json(['message' => 'Data successfully added', 'data' => $inserted_data], 201);
@@ -39,7 +39,6 @@ class MenuCategoryController extends Controller
         }
 
         $updated_data = $menuCategory->update($request->validated());
-
         if ($updated_data) {
             return response()->json(['message' => 'Data successfully updated', 'data' => $menuCategory]);
         } else {
@@ -53,7 +52,6 @@ class MenuCategoryController extends Controller
         }
 
         $deleted_data = $menuCategory->delete();
-
         if ($deleted_data) {
             return response()->json(['message' => 'Data successfully deleted']);
         } else {

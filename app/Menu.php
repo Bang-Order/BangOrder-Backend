@@ -18,8 +18,8 @@ class Menu extends Model
         return $this->belongsTo('App\MenuCategory');
     }
 
-    public function orderItems()
-    {
-        return $this->hasMany('App\OrderItem');
-    }
+//    public function orderItems()
+//    {
+//        return $this->hasMany('App\OrderItem');
+//    }
 }
