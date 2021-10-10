@@ -33,4 +33,8 @@ class Restaurant extends Authenticatable
     {
         return $this->hasMany('App\MenuCategory');
     }
+
+    public function orders() {
+        return$this->hasMany('App\Order');
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Order;
 
-use App\Http\Resources\Menu\MenuResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class OrderCollection extends ResourceCollection
@@ -15,6 +14,11 @@ class OrderCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return OrderResource::collection($this->collection);
+        return [
+            'data' => OrderResource::collection($this->collection),
+            'meta' => [
+                'data_length' => $this->collection->count()
+            ]
+        ];
     }
 }
