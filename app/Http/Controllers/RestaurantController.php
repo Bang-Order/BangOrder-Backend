@@ -13,8 +13,7 @@ class RestaurantController extends Controller
 {
     public function index(Restaurant $restaurant)
     {
-        $resource = $restaurant->all();
-        return new RestaurantCollection($resource);
+        //
     }
 
     public function store(Request $request)
