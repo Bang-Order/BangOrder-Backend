@@ -13,8 +13,7 @@ class RestaurantController extends Controller
 {
     public function index(Restaurant $restaurant)
     {
-        $resource = $restaurant->all();
-        return new RestaurantCollection($resource);
+        return response()->json(['message' => 'Please specify the Restaurant ID'], 400);
     }
 
     public function store(Request $request)

@@ -41,9 +41,14 @@ class MenuController extends Controller
                     $data = $data->where('is_available', 0);
             }
         }
-        $data = $data->get();
+        $data = $data->orderBy('name')->get();
 
         return new MenuCollection($data);
+
+        // Keep in mind that in mobile app (flutter), they still retrieve the
+        // data by menu category ID over and over, and it will cause N+1 problem
+        // on the mobile side. Might want to separate the mobile request for index
+        // menu and grouping them by menu category in the future
     }
 
     public function store(Restaurant $restaurant, MenuRequest $request) {
