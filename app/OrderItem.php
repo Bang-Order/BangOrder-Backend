@@ -2,19 +2,17 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class OrderItem extends Model
+class OrderItem extends Pivot
 {
-    protected $guarded = ['id'];
+    protected $table = 'order_items';
 
-    public function order()
-    {
+    public function order() {
         return $this->belongsTo('App\Order');
     }
 
-    public function menu()
-    {
+    public function menu() {
         return $this->belongsTo('App\Menu');
     }
 }

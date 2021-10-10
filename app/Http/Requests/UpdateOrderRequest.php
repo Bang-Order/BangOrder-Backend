@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class OrderItemRequest extends FormRequest
+class UpdateOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +14,7 @@ class OrderItemRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,9 +25,8 @@ class OrderItemRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'order_id' => ['required', 'integer'],
-            'menu_id' => ['required', 'integer'],
-            'quantity' => ['required', 'integer'],
+            'order_status' => [Rule::in(['antri', 'dimasak', 'selesai'])],
+            'payment_status' => [Rule::in(['pending', 'success'])],
         ];
     }
 }
