@@ -41,7 +41,7 @@ class MenuController extends Controller
                     $data = $data->where('is_available', 0);
             }
         }
-        $data = $data->orderBy('name')->get();
+        $data = $data->get();
 
         return new MenuCollection($data);
 

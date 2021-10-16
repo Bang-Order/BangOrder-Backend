@@ -23,8 +23,7 @@ class OrderController extends Controller
             $data = $restaurant->orders()->whereIn('order_status', ['antri', 'dimasak']);
         }
 
-        return new OrderCollection($data->orderByDesc('created_at')
-            ->with('orderItems.menu')
+        return new OrderCollection($data->with('orderItems.menu')
             ->get());
     }
 
@@ -39,7 +38,7 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Start date value must lower than end date'], 422);
             }
         }
-        return new OrderCollection($data->orderByDesc('created_at')
+        return new OrderCollection($data
             ->with('orderItems.menu')
             ->get());
     }
