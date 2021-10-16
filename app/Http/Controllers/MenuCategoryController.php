@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MenuCategoryRequest;
 use App\Http\Resources\MenuCategory\MenuCategoryCollection;
 use App\Http\Resources\MenuCategory\MenuCategoryResource;
+use App\Http\Resources\MenuCategoryWithMenu\MenuCategoryWithMenuCollection;
 use App\MenuCategory;
 use App\Restaurant;
 use Illuminate\Http\Request;
@@ -12,7 +13,11 @@ use Illuminate\Http\Request;
 class MenuCategoryController extends Controller
 {
     public function index(Restaurant $restaurant) {
-        return new MenuCategoryCollection($restaurant->menuCategories()->orderBy('name')->get());
+        return new MenuCategoryCollection($restaurant->menuCategories()->get());
+    }
+
+    public function indexWithMenu(Restaurant $restaurant) {
+        return new MenuCategoryWithMenuCollection($restaurant->menuCategories()->with('menus')->get());
     }
 
     public function store(Restaurant $restaurant, MenuCategoryRequest $request) {

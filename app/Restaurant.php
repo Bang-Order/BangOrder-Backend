@@ -21,7 +21,7 @@ class Restaurant extends Authenticatable
 
     public function menus()
     {
-        return $this->hasMany('App\Menu');
+        return $this->hasMany('App\Menu')->orderBy('name');
     }
 
     public function restaurantTables()
@@ -31,10 +31,10 @@ class Restaurant extends Authenticatable
 
     public function menuCategories()
     {
-        return $this->hasMany('App\MenuCategory');
+        return $this->hasMany('App\MenuCategory')->orderBy('name');
     }
 
     public function orders() {
-        return$this->hasMany('App\Order');
+        return$this->hasMany('App\Order')->latest();
     }
 }
