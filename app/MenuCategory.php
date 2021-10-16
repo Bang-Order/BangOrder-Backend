@@ -16,6 +16,6 @@ class MenuCategory extends Model
 
     public function menus()
     {
-        return $this->hasMany('App\Menu');
+        return $this->hasMany('App\Menu')->orderBy('name');
     }
 }
