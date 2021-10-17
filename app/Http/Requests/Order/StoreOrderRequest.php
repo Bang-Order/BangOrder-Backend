@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -13,7 +14,16 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $auth_id = $this->user()->id;
+        if ($auth_id == $this->restaurant->id) {
+            return true;
+        }
+        return false;
+    }
+
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json(['message' => 'This action is unauthorized.'], 401));
     }
 
     /**

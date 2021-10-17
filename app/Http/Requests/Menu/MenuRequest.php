@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Menu;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class MenuRequest extends FormRequest
 {
@@ -13,7 +14,22 @@ class MenuRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $auth_id = $this->user()->id;
+        if ($auth_id == $this->restaurant->id) {
+            if (in_array($this->method(), array('PUT', 'PATCH'))) {
+                if ($auth_id == $this->menu->restaurant_id) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json(['message' => 'This action is unauthorized.'], 401));
     }
 
     /**

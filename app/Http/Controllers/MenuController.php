@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MenuRequest;
+use App\Http\Requests\Menu\MenuRequest;
 use App\Http\Resources\Menu\MenuCollection;
 use App\Http\Resources\Menu\MenuResource;
 use App\Menu;
@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
+    public function __construct() {
+        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+    }
+
     public function index(Restaurant $restaurant, Request $request) {
         if ($request->menu_category_id) {
             $menuCategory = $restaurant->menuCategories()->find($request->menu_category_id);
@@ -44,16 +48,11 @@ class MenuController extends Controller
         $data = $data->get();
 
         return new MenuCollection($data);
-
-        // Keep in mind that in mobile app (flutter), they still retrieve the
-        // data by menu category ID over and over, and it will cause N+1 problem
-        // on the mobile side. Might want to separate the mobile request for index
-        // menu and grouping them by menu category in the future
     }
 
     public function store(Restaurant $restaurant, MenuRequest $request) {
-        $menuCategory = $restaurant->menuCategories()->find($request->menu_category_id);
-        if (!$menuCategory) {
+        $menu_category = $restaurant->menuCategories()->find($request->menu_category_id);
+        if (!$menu_category) {
             return response()->json([
                 'message' => 'Menu Category ID is invalid'], 404
             );
@@ -64,7 +63,10 @@ class MenuController extends Controller
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
-            return response()->json(['message' => 'Data successfully added', 'data' => $inserted_data], 201);
+            return response()->json([
+                'message' => 'Data successfully added',
+                'data' => new MenuResource($inserted_data)
+            ], 201);
         }
     }
 
@@ -77,15 +79,13 @@ class MenuController extends Controller
     }
 
     public function update(Restaurant $restaurant, Menu $menu, MenuRequest $request) {
-        if ($restaurant->id != $menu->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Menu Foreign Key does not match'], 404);
-        }
-
-        $menuCategory = $restaurant->menuCategories()->find($request->menu_category_id);
-        if (!$menuCategory) {
-            return response()->json([
-                'message' => 'Menu Category ID is invalid'], 404
-            );
+        if ($request->menu_category_id) {
+            $menu_category = $restaurant->menuCategories()->find($request->menu_category_id);
+            if (!$menu_category) {
+                return response()->json([
+                    'message' => 'Menu Category ID is invalid'], 404
+                );
+            }
         }
 
         $updated_data = $menu->update($request->validated());

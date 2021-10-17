@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
@@ -14,7 +15,16 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $auth_id = $this->user()->id;
+        if ($auth_id == $this->restaurant->id && $auth_id == $this->order->restaurant_id) {
+            return true;
+        }
+        return false;
+    }
+
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json(['message' => 'This action is unauthorized.'], 401));
     }
 
     /**
