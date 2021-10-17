@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/restaurant', function (Request $request) {
-    return $request->restaurant();
-});
+//AuthController
+Route::post('/auth/login', 'AuthController@login');
+Route::post('/auth', 'AuthController@auth');
+Route::post('/auth/logout', 'AuthController@logout');
 
 Route::get('/restaurants/{restaurant}/menu-categories/menus', 'MenuCategoryController@indexWithMenu');
 
@@ -28,7 +29,3 @@ Route::apiResources([
     'restaurants.menus' => 'MenuController',
     'restaurants.orders' => 'OrderController'
 ]);
-
-//Route::apiResource('restaurants.orders', 'OrderController');
-
-//Route::get('/menu', 'MenuController@index');

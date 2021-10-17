@@ -4,10 +4,11 @@ namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Restaurant extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     protected $hidden = [
         'password', 'remember_token',
@@ -18,6 +19,11 @@ class Restaurant extends Authenticatable
     ];
 
     protected $guarded = ['id'];
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
 
     public function menus()
     {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\UpdateOrderRequest;
+use App\Http\Requests\Order\StoreOrderRequest;
+use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\Order\OrderCollection;
 use App\Http\Resources\Order\OrderResource;
 use App\Menu;
@@ -15,6 +15,10 @@ use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
+    public function __construct() {
+        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+    }
+
     public function index(Restaurant $restaurant, Request $request)
     {
         if ($request->status) {
@@ -109,13 +113,16 @@ class OrderController extends Controller
 
     public function update(Restaurant $restaurant, Order $order, UpdateOrderRequest $request)
     {
-        if ($restaurant->id != $order->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Order Foreign Key does not match'], 404);
-        }
+//        if ($restaurant->id != $order->restaurant_id) {
+//            return response()->json(['message' => 'Restaurant ID and Order Foreign Key does not match'], 404);
+//        }
 
         $updated_data = $order->update($request->validated());
         if ($updated_data) {
-            return response()->json(['message' => 'Data successfully updated', 'data' => new OrderResource($order->load('orderItems.menu'))]);
+            return response()->json([
+                'message' => 'Data successfully updated',
+                'data' => new OrderResource($order->load('orderItems.menu'))
+            ]);
         } else {
             return response()->json(['message' => 'Update failed'], 400);
         }
