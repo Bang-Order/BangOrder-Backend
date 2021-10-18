@@ -111,7 +111,7 @@ class OrderController extends Controller
         return new OrderResource($order->load('orderItems.menu'));
     }
 
-    public function update(Order $order, UpdateOrderRequest $request)
+    public function update(Restaurant $restaurant, Order $order, UpdateOrderRequest $request)
     {
         $updated_data = $order->update($request->validated());
         if ($updated_data) {
