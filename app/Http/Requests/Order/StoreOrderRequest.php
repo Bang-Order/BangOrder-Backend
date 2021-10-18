@@ -14,11 +14,7 @@ class StoreOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        $auth_id = $this->user()->id;
-        if ($auth_id == $this->restaurant->id) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public function failedAuthorization()
