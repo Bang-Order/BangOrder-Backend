@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 //AuthController
-Route::post('/auth/login', 'AuthController@login');
-Route::post('/auth', 'AuthController@auth');
-Route::post('/auth/logout', 'AuthController@logout');
+Route::prefix('auth')->group(function () {
+    Route::post('/', 'AuthController@auth');
+    Route::post('/login', 'AuthController@login');
+    Route::post('/logout', 'AuthController@logout');
+});
 
 Route::get('/restaurants/{restaurant}/menu-categories/menus', 'MenuCategoryController@indexWithMenu');
 
