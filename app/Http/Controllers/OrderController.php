@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 class OrderController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+        $this->middleware('auth:sanctum')->only(['update', 'destroy']);
     }
 
     public function index(Restaurant $restaurant, Request $request)
@@ -111,12 +111,8 @@ class OrderController extends Controller
         return new OrderResource($order->load('orderItems.menu'));
     }
 
-    public function update(Restaurant $restaurant, Order $order, UpdateOrderRequest $request)
+    public function update(Order $order, UpdateOrderRequest $request)
     {
-//        if ($restaurant->id != $order->restaurant_id) {
-//            return response()->json(['message' => 'Restaurant ID and Order Foreign Key does not match'], 404);
-//        }
-
         $updated_data = $order->update($request->validated());
         if ($updated_data) {
             return response()->json([
