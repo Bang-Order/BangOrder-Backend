@@ -17,11 +17,6 @@ class StoreOrderRequest extends FormRequest
         return true;
     }
 
-    public function failedAuthorization()
-    {
-        throw new HttpResponseException(response()->json(['message' => 'This action is unauthorized.'], 401));
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
