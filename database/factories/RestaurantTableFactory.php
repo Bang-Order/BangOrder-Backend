@@ -7,8 +7,8 @@ use Faker\Generator as Faker;
 
 $factory->define(RestaurantTable::class, function (Faker $faker) {
     return [
-        'restaurant_id' => rand(1, 3),
-        'table_number' => rand(1, 100),
+        'restaurant_id' => 1,
+        'table_number' => 1,
         'link' => $faker->url(),
     ];
 });
