@@ -12,6 +12,6 @@ class RestaurantTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(RestaurantTable::class, 10)->create();
+        factory(RestaurantTable::class, 1)->create();
     }
 }
