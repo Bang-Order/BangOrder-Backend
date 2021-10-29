@@ -34,11 +34,12 @@ class RestaurantRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email'],
-            'telephone_number' => ['required', 'numeric'],
-            'address' => ['required', 'string'],
-            'image' => ['required', 'active_url'], //change it to image or active_url later
+            'name' => ['string'],
+            'email' => ['email'],
+            'address' => ['string'],
+            'image' => ['active_url'], //change it to image or active_url later
+            'owner_name' => ['string'],
+            'telephone_number' => ['numeric']
         ];
     }
 }
