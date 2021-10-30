@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\OrderItem;
+namespace App\Http\Resources\RestaurantTable;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class OrderItemCollection extends ResourceCollection
+class RestaurantTableCollection extends ResourceCollection
 {
     /**
      * Transform the resource collection into an array.
@@ -15,7 +15,10 @@ class OrderItemCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'order-items' => OrderItemResource::collection($this->collection),
+            'data' => RestaurantTableResource::collection($this->collection),
+            'meta' => [
+                'data_length' => $this->collection->count()
+            ]
         ];
     }
 }
