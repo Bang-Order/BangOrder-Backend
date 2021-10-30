@@ -96,9 +96,10 @@ class MenuController extends Controller
         }
     }
 
-    public function destroy(Restaurant $restaurant, Menu $menu){
-        if ($restaurant->id != $menu->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Menu Foreign Key does not match'], 404);
+    public function destroy(Request $request, Restaurant $restaurant, Menu $menu){
+        $auth_id = $request->user()->id;
+        if ($auth_id != $restaurant->id || $auth_id != $menu->restaurant_id) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 
         $deleted_data = $menu->delete();

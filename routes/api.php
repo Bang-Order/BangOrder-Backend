@@ -29,5 +29,6 @@ Route::apiResources([
     'restaurants' => 'RestaurantController',
     'restaurants.menu-categories' => 'MenuCategoryController',
     'restaurants.menus' => 'MenuController',
-    'restaurants.orders' => 'OrderController'
+    'restaurants.orders' => 'OrderController',
+    'restaurants.tables' => 'RestaurantTableController'
 ]);

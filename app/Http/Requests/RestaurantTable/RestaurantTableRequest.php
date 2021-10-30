@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Restaurant;
+namespace App\Http\Requests\RestaurantTable;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class RestaurantRequest extends FormRequest
+class RestaurantTableRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -16,6 +16,12 @@ class RestaurantRequest extends FormRequest
     {
         $auth_id = $this->user()->id;
         if ($auth_id == $this->restaurant->id) {
+            if (in_array($this->method(), array('PUT', 'PATCH'))) {
+                if ($auth_id == $this->table->restaurant_id) {
+                    return true;
+                }
+                return false;
+            }
             return true;
         }
         return false;
@@ -34,12 +40,7 @@ class RestaurantRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['string'],
-            'email' => ['email'],
-            'address' => ['string'],
-            'image' => ['active_url'], //change it to image or active_url later
-            'owner_name' => ['string'],
-            'telephone_number' => ['numeric']
+            'table_number' => ['required', 'string', 'max:5']
         ];
     }
 }

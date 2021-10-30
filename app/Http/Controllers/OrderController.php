@@ -124,10 +124,11 @@ class OrderController extends Controller
         }
     }
 
-    public function destroy(Restaurant $restaurant, Order $order)
+    public function destroy(Request $request, Restaurant $restaurant, Order $order)
     {
-        if ($restaurant->id != $order->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Order Foreign Key does not match'], 404);
+        $auth_id = $request->user()->id;
+        if ($auth_id != $restaurant->id || $auth_id != $order->restaurant_id) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 
         $deleted_data = $order->delete();

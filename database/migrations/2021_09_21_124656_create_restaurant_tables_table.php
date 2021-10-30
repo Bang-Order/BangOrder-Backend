@@ -16,7 +16,7 @@ class CreateRestaurantTablesTable extends Migration
         Schema::create('restaurant_tables', function (Blueprint $table) {
             $table->id();
             $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
-            $table->string('table_number');
+            $table->string('table_number', 5);
             $table->string('link')->unique();
             $table->timestamps();
         });
