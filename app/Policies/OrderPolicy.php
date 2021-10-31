@@ -13,12 +13,13 @@ class OrderPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Restaurant  $restaurant
+     * @param \App\Restaurant $restaurant
+     * @param $id
      * @return mixed
      */
-    public function viewAny(Restaurant $restaurant)
+    public function viewAny(Restaurant $restaurant, $id)
     {
-        return false;
+        return $restaurant->id == $id;
     }
 
     /**

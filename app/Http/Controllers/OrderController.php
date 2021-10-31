@@ -6,7 +6,6 @@ use App\Http\Requests\Order\StoreOrderRequest;
 use App\Http\Requests\Order\UpdateOrderRequest;
 use App\Http\Resources\Order\OrderCollection;
 use App\Http\Resources\Order\OrderResource;
-use App\Menu;
 use App\Order;
 use App\Restaurant;
 use Exception;
@@ -18,11 +17,15 @@ use Xendit\Xendit;
 class OrderController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only(['update', 'destroy']);
+        $this->middleware('auth:sanctum')->only(['index', 'indexAll', 'update', 'destroy']);
     }
 
-    public function index(Restaurant $restaurant, Request $request)
+    public function index(Request $request, Restaurant $restaurant)
     {
+        if ($request->user()->cannot('viewAny', [Order::class, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
+        }
+
         if ($request->status) {
             $data = $restaurant->orders()->where('order_status', $request->status);
         } else {
@@ -34,6 +37,10 @@ class OrderController extends Controller
     }
 
     public function indexAll(Restaurant $restaurant, Request $request) {
+        if ($request->user()->cannot('viewAny', [Order::class, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
+        }
+
         $data = $restaurant->orders();
         if ($start_date = $request->start_date) {
             $end_date = $request->end_date ?: now()->toDateString();
@@ -149,7 +156,7 @@ class OrderController extends Controller
         }
     }
 
-    public function destroy(Request $request, Restaurant $restaurant, Order $order)
+    public function destroy(Restaurant $restaurant, Order $order)
     {
         if ($restaurant->cannot('delete', [$order, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);

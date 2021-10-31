@@ -103,7 +103,7 @@ class RestaurantTableController extends Controller
         }
     }
 
-    public function destroy(Request $request, Restaurant $restaurant, RestaurantTable $table)
+    public function destroy(Restaurant $restaurant, RestaurantTable $table)
     {
         if ($restaurant->cannot('delete', [$table, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
