@@ -34,7 +34,7 @@ class RestaurantTableController extends Controller
         } else {
             $restaurant_id = $restaurant->id;
             $table_id = $inserted_data->id;
-            $qr_value = base64_encode("{'restaurant_id':'$restaurant_id', 'table_id':'$table_id'}");
+            $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant_id\", \"table_id\":\"$table_id\"}");
             $qr_directory_path = "storage/id_$restaurant_id/qr_code";
             $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
             $sticker_save_path = $qr_directory_path . "/qr_id_$table_id.jpg";
