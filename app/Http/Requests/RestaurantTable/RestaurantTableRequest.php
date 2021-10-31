@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\RestaurantTable;
 
+use App\RestaurantTable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -14,17 +15,13 @@ class RestaurantTableRequest extends FormRequest
      */
     public function authorize()
     {
-        $auth_id = $this->user()->id;
-        if ($auth_id == $this->restaurant->id) {
-            if (in_array($this->method(), array('PUT', 'PATCH'))) {
-                if ($auth_id == $this->table->restaurant_id) {
-                    return true;
-                }
-                return false;
-            }
-            return true;
+        $restaurant_id = $this->restaurant->id;
+        switch ($this->method()) {
+            case 'POST':
+                return $this->user()->can('create', [RestaurantTable::class, $restaurant_id]);
+            default:
+                return $this->user()->can('update', [$this->table, $restaurant_id]);
         }
-        return false;
     }
 
     public function failedAuthorization()

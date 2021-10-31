@@ -23,8 +23,12 @@ class RestaurantController extends Controller
         return response()->json(['message' => 'There are no POST method in RestaurantController'], 405);
     }
 
-    public function show(Restaurant $restaurant)
+    public function show(Request $request, Restaurant $restaurant)
     {
+        $auth_id = $request->user()->id;
+        if ($auth_id != $restaurant->id) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
+        }
         return new RestaurantResource($restaurant);
     }
 

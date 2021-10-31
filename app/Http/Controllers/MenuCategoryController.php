@@ -8,6 +8,7 @@ use App\Http\Resources\MenuCategory\MenuCategoryResource;
 use App\Http\Resources\MenuCategoryWithMenu\MenuCategoryWithMenuCollection;
 use App\MenuCategory;
 use App\Restaurant;
+use Exception;
 use Illuminate\Http\Request;
 
 class MenuCategoryController extends Controller
@@ -26,7 +27,6 @@ class MenuCategoryController extends Controller
 
     public function store(Restaurant $restaurant, MenuCategoryRequest $request) {
         $inserted_data = $restaurant->menuCategories()->create($request->validated());
-
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
@@ -38,10 +38,9 @@ class MenuCategoryController extends Controller
     }
 
     public function show(Restaurant $restaurant, MenuCategory $menu_category) {
-        if ($restaurant->id != $menu_category->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Menu Category Foreign Key does not match'], 404);
+        if ($restaurant->cannot('view', [$menu_category, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-
         return new MenuCategoryResource($menu_category);
     }
 
@@ -57,9 +56,8 @@ class MenuCategoryController extends Controller
         }
     }
 
-    public function destroy(Request $request, Restaurant $restaurant, MenuCategory $menu_category) {
-        $auth_id = $request->user()->id;
-        if ($auth_id != $restaurant->id || $auth_id != $menu_category->restaurant_id) {
+    public function destroy(Restaurant $restaurant, MenuCategory $menu_category) {
+        if ($restaurant->cannot('delete', [$menu_category, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 

@@ -10,7 +10,6 @@ use App\RestaurantTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 
 class RestaurantTableController extends Controller
@@ -19,8 +18,11 @@ class RestaurantTableController extends Controller
         $this->middleware('auth:sanctum')->only(['index', 'store', 'update', 'destroy']);
     }
 
-    public function index(Restaurant $restaurant)
+    public function index(Request $request, Restaurant $restaurant)
     {
+        if ($request->user()->cannot('viewAny', [RestaurantTable::class, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
+        }
         return new RestaurantTableCollection($restaurant->restaurantTables()->get());
     }
 
@@ -64,10 +66,8 @@ class RestaurantTableController extends Controller
 
     public function show(Restaurant $restaurant, RestaurantTable $table)
     {
-        if ($restaurant->id != $table->restaurant_id) {
-            return response()->json([
-                'message' => 'Restaurant ID and Restaurant Table ID Foreign Key does not match'
-            ],404);
+        if ($restaurant->cannot('view', [$table, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 
         return response()->json([
@@ -105,11 +105,9 @@ class RestaurantTableController extends Controller
 
     public function destroy(Request $request, Restaurant $restaurant, RestaurantTable $table)
     {
-        $auth_id = $request->user()->id;
-        if ($auth_id != $restaurant->id || $auth_id != $table->restaurant_id) {
+        if ($restaurant->cannot('delete', [$table, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-
         $deleted_data = $table->delete();
         if ($deleted_data) {
             $sticker_path = "storage/id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
