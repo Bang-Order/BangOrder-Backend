@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Menu;
 
+use App\Menu;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -14,17 +15,13 @@ class MenuRequest extends FormRequest
      */
     public function authorize()
     {
-        $auth_id = $this->user()->id;
-        if ($auth_id == $this->restaurant->id) {
-            if (in_array($this->method(), array('PUT', 'PATCH'))) {
-                if ($auth_id == $this->menu->restaurant_id) {
-                    return true;
-                }
-                return false;
-            }
-            return true;
+        $restaurant_id = $this->restaurant->id;
+        switch ($this->method()) {
+            case 'POST':
+                return $this->user()->can('create', [Menu::class, $restaurant_id]);
+            default:
+                return $this->user()->can('update', [$this->menu, $restaurant_id]);
         }
-        return false;
     }
 
     public function failedAuthorization()

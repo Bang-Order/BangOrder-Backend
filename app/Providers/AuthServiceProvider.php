@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Menu;
+use App\MenuCategory;
+use App\Order;
+use App\Policies\MenuCategoryPolicy;
+use App\Policies\MenuPolicy;
+use App\Policies\OrderPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -14,6 +20,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         // 'App\Model' => 'App\Policies\ModelPolicy',
+        MenuCategory::class => MenuCategoryPolicy::class,
+        Menu::class => MenuPolicy::class,
+        Order::class => OrderPolicy::class
     ];
 
     /**

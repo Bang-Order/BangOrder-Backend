@@ -54,8 +54,8 @@ class OrderController extends Controller
         $restaurantTable = $restaurant->restaurantTables()->find($request->restaurant_table_id);
         if (!$restaurantTable) {
             return response()->json([
-                'message' => 'Restaurant Table ID is invalid'], 404
-            );
+                'message' => 'Restaurant Table ID is invalid'
+            ], 404);
         }
 
         $request->merge(['transaction_id' => time()]);
@@ -81,8 +81,8 @@ class OrderController extends Controller
                     ], 422);
                 }
 
-                $menu = Menu::find($item['menu_id']); //might want to optimize this later to avoid repetitive query call
-                if ($menu->restaurant_id != $restaurant->id) {
+                $menu = $restaurant->menus()->find($item['menu_id']); //might want to optimize this later to avoid repetitive query call
+                if (!$menu) {
                     $inserted_order->delete();
                     return response()->json(['message' => 'Restaurant ID and Menu Foreign Key does not match'], 404);
                 }
@@ -104,6 +104,7 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Insert OrderItem failed'], 400);
             } else {
                 try {
+                    // Create xendit invoice charge
                     Xendit::setApiKey('xnd_development_ASINFB6cQ42dqfSx9FPv7uL9SU4S33wsKh2orHzUlNQP5Haebk1QnIyP4j1ipH1');
                     $params = [
                         'external_id' => "Bang Order - $restaurant->name - $inserted_order->id",
@@ -129,10 +130,9 @@ class OrderController extends Controller
 
     public function show(Restaurant $restaurant, Order $order)
     {
-        if ($restaurant->id != $order->restaurant_id) {
-            return response()->json(['message' => 'Restaurant ID and Order Foreign Key does not match'], 404);
+        if ($restaurant->cannot('view', [$order, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-
         return new OrderResource($order->load('orderItems.menu'));
     }
 
@@ -151,11 +151,9 @@ class OrderController extends Controller
 
     public function destroy(Request $request, Restaurant $restaurant, Order $order)
     {
-        $auth_id = $request->user()->id;
-        if ($auth_id != $restaurant->id || $auth_id != $order->restaurant_id) {
+        if ($restaurant->cannot('delete', [$order, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-
         $deleted_data = $order->delete();
         if ($deleted_data) {
             return response()->json(['message' => 'Data successfully deleted']);
