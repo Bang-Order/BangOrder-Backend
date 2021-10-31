@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class RestaurantController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only('update');
+        $this->middleware('auth:sanctum')->only('show', 'update');
     }
 
     public function index()

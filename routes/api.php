@@ -21,6 +21,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', 'AuthController@logout');
 });
 
+Route::post('/order/notify', 'XenditController@notify');
+
 Route::get('/restaurants/{restaurant}/menu-categories/menus', 'MenuCategoryController@indexWithMenu');
 
 Route::get('/restaurants/{restaurant}/orders/history', 'OrderController@indexAll');

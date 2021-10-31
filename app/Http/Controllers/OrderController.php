@@ -9,9 +9,11 @@ use App\Http\Resources\Order\OrderResource;
 use App\Menu;
 use App\Order;
 use App\Restaurant;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
+use Xendit\Invoice;
+use Xendit\Xendit;
 
 class OrderController extends Controller
 {
@@ -56,14 +58,15 @@ class OrderController extends Controller
             );
         }
 
-        $request->merge(['transaction_id' => Str::random(10)]);
-
+        $request->merge(['transaction_id' => time()]);
         $inserted_order = $restaurant->orders()->create($request->all());
 
         if (empty($inserted_order)) {
             return response()->json(['message' => 'Insert Order failed'], 400);
         } else {
+            //insert each of order items
             $sync_data = [];
+            $items = [];
             foreach ($request->order_items as $item) {
                 $validator = Validator::make($item, [
                     'menu_id' => ['required', 'integer', 'exists:App\Menu,id'],
@@ -88,6 +91,11 @@ class OrderController extends Controller
                     'quantity' => $item['quantity'],
                     'notes' => array_key_exists('notes', $item) ? $item['notes'] : null
                 ];
+                $items[] = json_encode([
+                    'name' => $menu->name,
+                    'quantity' => $item['quantity'],
+                    'price' => $menu->price * $item['quantity']
+                ]);
             }
 
             $inserted_item = $inserted_order->menus()->sync($sync_data);
@@ -95,9 +103,26 @@ class OrderController extends Controller
                 $inserted_order->delete();
                 return response()->json(['message' => 'Insert OrderItem failed'], 400);
             } else {
+                try {
+                    Xendit::setApiKey('xnd_development_ASINFB6cQ42dqfSx9FPv7uL9SU4S33wsKh2orHzUlNQP5Haebk1QnIyP4j1ipH1');
+                    $params = [
+                        'external_id' => "Bang Order - $restaurant->name - $inserted_order->id",
+                        'amount' => $request->total_price,
+                        'description' => "Pembayaran ke $restaurant->name via Bang Order",
+                        'items' => $items
+                    ];
+                    $createInvoice = Invoice::create($params);
+                    $invoice_id = $createInvoice['id'];
+                    $invoice_url = $createInvoice['invoice_url'];
+                    $inserted_order->update(['transaction_id' => $invoice_id, 'invoice_url' => $invoice_url]);
+                } catch (Exception $e) {
+                    $inserted_order->delete();
+                    return response()->json(['message' => 'Xendit error: ' . $e->getMessage()], $e->getCode());
+                }
                 return response()->json([
                     'message' => 'Data successfully created',
-                    'data' => new OrderResource($inserted_order->refresh()->load('orderItems.menu'))], 201);
+                    'data' => new OrderResource($inserted_order->refresh()->load('orderItems.menu'))
+                ], 201);
             }
         }
     }

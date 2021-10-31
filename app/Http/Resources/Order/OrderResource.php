@@ -2,9 +2,7 @@
 
 namespace App\Http\Resources\Order;
 
-use App\Http\Resources\OrderItem\OrderItemCollection;
 use App\Http\Resources\OrderItem\OrderItemResource;
-use App\OrderItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
@@ -20,8 +18,9 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'table_id' => $this->restaurant_table_id,
+            'transaction_id' => $this->transaction_id,
+            'invoice_url' => $this->invoice_url,
             'order_status' => $this->order_status,
-            'payment_status' => $this->payment_status,
             'order_items' => OrderItemResource::collection($this->whenLoaded('orderItems')),
             'total_price' => number_format($this->total_price, 0, ',', '.'),
             'created_at' => $this->created_at

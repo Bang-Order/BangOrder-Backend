@@ -45,9 +45,8 @@ class MenuController extends Controller
                     $data = $data->where('is_available', 0);
             }
         }
-        $data = $data->get();
 
-        return new MenuCollection($data);
+        return new MenuCollection($data->get());
     }
 
     public function store(Restaurant $restaurant, MenuRequest $request) {
