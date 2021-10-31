@@ -19,8 +19,8 @@ class CreateOrdersTable extends Migration
             $table->foreignId('restaurant_table_id')->constrained();
             $table->integer('total_price');
             $table->string('transaction_id')->unique();
-            $table->string('order_status')->default('antri');
-            $table->string('payment_status')->default('pending');
+            $table->string('order_status')->default('payment_pending');
+            $table->string('invoice_url')->nullable();
             $table->timestamps();
         });
     }

@@ -26,7 +26,7 @@ class RestaurantTableController extends Controller
 
     public function store(Restaurant $restaurant, RestaurantTableRequest $request)
     {
-        $request->merge(['link' => Str::random(10)]);
+        $request->merge(['link' => time()]);
         $inserted_data = $restaurant->restaurantTables()->create($request->all());
 
         if (empty($inserted_data)) {
