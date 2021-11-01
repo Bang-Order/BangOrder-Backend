@@ -101,7 +101,7 @@ class OrderController extends Controller
                 $items[] = json_encode([
                     'name' => $menu->name,
                     'quantity' => $item['quantity'],
-                    'price' => $menu->price * $item['quantity']
+                    'price' => $menu->price
                 ]);
             }
 
@@ -112,7 +112,7 @@ class OrderController extends Controller
             } else {
                 try {
                     // Create xendit invoice charge
-                    Xendit::setApiKey('xnd_development_ASINFB6cQ42dqfSx9FPv7uL9SU4S33wsKh2orHzUlNQP5Haebk1QnIyP4j1ipH1');
+                    Xendit::setApiKey(env('XENDIT_API_KEY'));
                     $params = [
                         'external_id' => "Bang Order - $restaurant->name - $inserted_order->id",
                         'amount' => $request->total_price,

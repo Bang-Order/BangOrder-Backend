@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class XenditController extends Controller
 {
     public function notify(Request $request) {
-        if ($request->header('x-callback-token') === 'AvbDTxVrJKcvWri8qzCrj9jz4bqu5Hz6Whr8AEwuHD5CCwnz') {
+        if ($request->header('x-callback-token') === env('XENDIT_CALLBACK_TOKEN')) {
             $order = Order::where('transaction_id', $request->id)->firstOrFail();
             switch ($request->status) {
                 case 'PAID':
@@ -20,6 +20,6 @@ class XenditController extends Controller
             }
             return response();
         }
-        return response('', 401);
+        return response($request->header('x-callback-token'), 401);
     }
 }
