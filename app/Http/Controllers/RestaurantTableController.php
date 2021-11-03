@@ -10,6 +10,7 @@ use App\RestaurantTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class RestaurantTableController extends Controller
@@ -40,7 +41,6 @@ class RestaurantTableController extends Controller
             $qr_directory_path = "storage/id_$restaurant_id/qr_code";
             $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
             $sticker_save_path = $qr_directory_path . "/qr_id_$table_id.jpg";
-            $domain = 'http://localhost:8000/';
             $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
 
             if (!File::exists($qr_directory_path)) {
@@ -54,7 +54,7 @@ class RestaurantTableController extends Controller
             $this->add_text($img, $restaurant->name, $inserted_data->table_number);
             $img->save($sticker_save_path);
 
-            $inserted_data->update(['link' => $domain . $sticker_save_path]);
+            $inserted_data->update(['link' => asset($sticker_save_path)]);
 
             return response()->json([
                 'message' => 'Data successfully added',
@@ -78,6 +78,14 @@ class RestaurantTableController extends Controller
             'table_id' => $table->id,
             'table_number' => $table->table_number
         ]);
+    }
+
+    public function getQRCode(Restaurant $restaurant, RestaurantTable $table) {
+        if ($restaurant->cannot('view', [$table, $restaurant->id])) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
+        }
+        $sticker_path = "storage/id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
+        return response()->download($sticker_path);
     }
 
     public function update(RestaurantTableRequest $request, Restaurant $restaurant, RestaurantTable $table)
