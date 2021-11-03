@@ -16,7 +16,7 @@ use Intervention\Image\Facades\Image;
 class RestaurantTableController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only(['index', 'store', 'update', 'destroy']);
+        $this->middleware('auth:sanctum')->only(['index', 'getQRCode', 'store', 'update', 'destroy']);
     }
 
     public function index(Request $request, Restaurant $restaurant)
