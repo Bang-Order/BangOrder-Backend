@@ -57,14 +57,19 @@ class MenuController extends Controller
             );
         }
 
-        $inserted_data = $restaurant->menus()->create($request->validated());
+        $inserted_data = $restaurant->menus()->create($request->except('image'));
 
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
+            if ($request->file('image')) {
+                $image_path = "id_$restaurant->id/menu";
+                $uploaded_image = $request->file('image')->storeAs($image_path, "menu_id_$inserted_data->id.jpg");
+                $inserted_data->update(['image' => asset('storage/' . $uploaded_image)]);
+            }
             return response()->json([
                 'message' => 'Data successfully added',
-                'data' => new MenuResource($inserted_data)
+                'data' => new MenuResource($inserted_data->refresh())
             ], 201);
         }
     }
@@ -86,7 +91,16 @@ class MenuController extends Controller
             }
         }
 
-        $updated_data = $menu->update($request->validated());
+        if ($request->file('image')) {
+            $image_path = "id_$restaurant->id/menu";
+            $uploaded_image = $request->file('image')->storeAs($image_path, "menu_id_$menu->id.jpg");
+            $newrequest = $request->validated();
+            $newrequest['image'] = asset('storage/' . $uploaded_image);
+        } else {
+            $newrequest = $request->validated();
+        }
+
+        $updated_data = $menu->update($newrequest);
         if ($updated_data) {
             return response()->json(['message' => 'Data successfully updated', 'data' => $menu]);
         } else {

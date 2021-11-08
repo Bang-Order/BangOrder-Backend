@@ -20,7 +20,7 @@ class CreateMenusTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->integer('price');
-            $table->string('image')->nullable();
+            $table->string('image')->default(asset('assets/default_menu.jpg'));
             $table->boolean('is_available')->default(true);
             $table->boolean('is_recommended')->default(false);
             $table->timestamps();

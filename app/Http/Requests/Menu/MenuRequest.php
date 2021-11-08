@@ -41,7 +41,7 @@ class MenuRequest extends FormRequest
             'menu_category_id' => ['integer', 'exists:App\MenuCategory,id'],
             'description' => ['string'],
             'price' => ['required', 'integer', 'gte:100'],
-            'image' => ['active_url'], //change it to image or active_url later
+            'image' => ['image', 'file', 'max:1024'], //change it to image or active_url later
             'is_available' => ['boolean'],
             'is_recommended' => ['boolean'],
         ];
