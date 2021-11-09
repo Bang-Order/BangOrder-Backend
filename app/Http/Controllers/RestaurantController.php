@@ -34,7 +34,17 @@ class RestaurantController extends Controller
 
     public function update(RestaurantRequest $request, Restaurant $restaurant)
     {
-        $updatedData = $restaurant->update($request->validated());
+        if ($request->file('image')) {
+            $image_path = "id_$restaurant->id";
+            $uploaded_image = $request->file('image')->storeAs($image_path, "restaurant_id_$restaurant->id.jpg");
+            $newrequest = $request->validated();
+            $newrequest['image'] = asset('storage/' . $uploaded_image);
+        } else {
+            $newrequest = $request->validated();
+        }
+
+        $updatedData = $restaurant->update($newrequest);
+
         if ($updatedData) {
             return response()->json([
                 'message' => 'Data successfully updated',

@@ -20,7 +20,7 @@ class CreateRestaurantsTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->text('address');
-            $table->string('image');
+            $table->string('image')->default(asset('assets/default_restaurant.jpg'));
             $table->string('owner_name');
             $table->string('telephone_number');
             $table->rememberToken();

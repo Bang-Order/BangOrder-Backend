@@ -37,11 +37,11 @@ class MenuRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'string'],
+            'name' => ['sometimes', 'required', 'string'],
             'menu_category_id' => ['integer', 'exists:App\MenuCategory,id'],
             'description' => ['string'],
-            'price' => ['required', 'integer', 'gte:100'],
-            'image' => ['image', 'file', 'max:1024'], //change it to image or active_url later
+            'price' => ['sometimes', 'required', 'integer', 'gte:100'],
+            'image' => ['image', 'file', 'max:1024'],
             'is_available' => ['boolean'],
             'is_recommended' => ['boolean'],
         ];
