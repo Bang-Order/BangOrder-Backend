@@ -13,9 +13,9 @@ $factory->define(Restaurant::class, function (Faker $faker) {
 //        'password' => $faker->password(),
         'name' => 'Resto ABC',
         'email' => 'resto_abc@gmail.com',
-        'password' => Hash::make('123456'),
+        'password' => Hash::make('12345678'),
         'address' => $faker->address(),
-        'image'=> $faker->imageUrl(500, 500, 'city'),
+        //'image'=> $faker->imageUrl(500, 500, 'city'),
         'owner_name' => $faker->name,
         'telephone_number' => $faker->phoneNumber(),
     ];

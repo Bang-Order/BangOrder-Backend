@@ -10,7 +10,6 @@ use App\RestaurantTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class RestaurantTableController extends Controller
@@ -35,24 +34,8 @@ class RestaurantTableController extends Controller
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
-            $restaurant_id = $restaurant->id;
-            $table_id = $inserted_data->id;
-            $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant_id\", \"table_id\":\"$table_id\"}");
-            $qr_directory_path = "storage/id_$restaurant_id/qr_code";
-            $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
-            $sticker_save_path = $qr_directory_path . "/qr_id_$table_id.jpg";
-            $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
-
-            if (!File::exists($qr_directory_path)) {
-                File::makeDirectory($qr_directory_path);
-            }
-
-            $qr_base64 = base64_encode(Http::get($qr_api_link));
-
-            $img = Image::make($sticker_origin_path);
-            $img->insert($qr_base64, 'center');
-            $this->add_text($img, $restaurant->name, $inserted_data->table_number);
-            $img->save($sticker_save_path);
+            $sticker_save_path = $this->generateQrRCode($restaurant->id, $inserted_data->id,
+                $restaurant->name, $inserted_data->table_number);
 
             $inserted_data->update(['link' => asset($sticker_save_path)]);
 
@@ -98,7 +81,7 @@ class RestaurantTableController extends Controller
             $img->rectangle(0, 2000, 1748, 2480, function ($draw) {
                 $draw->background('#FFC300');
             });
-            $this->add_text($img, $restaurant->name, $table->table_number);
+            $this->addText($img, $restaurant->name, $table->table_number);
             $img->save($sticker_path);
 
             return response()->json([
@@ -128,7 +111,37 @@ class RestaurantTableController extends Controller
         }
     }
 
-    public function add_text(\Intervention\Image\Image $img, string $restaurant_name, string $table_number): void
+    /**
+     * @param string $restaurant_id
+     * @param string $table_id
+     * @param string $restaurant_name
+     * @param string $table_number
+     * @return string
+     */
+    private function generateQrRCode(string $restaurant_id, string $table_id,
+                                     string $restaurant_name, string $table_number): string
+    {
+        $qr_directory_path = "storage/id_$restaurant_id/qr_code";
+        $sticker_save_path = "$qr_directory_path/qr_id_$table_id.jpg";
+        $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant_id\", \"table_id\":\"$table_id\"}");
+        $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
+        $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
+
+        if (!File::exists($qr_directory_path)) {
+            File::makeDirectory($qr_directory_path);
+        }
+
+        $qr_base64 = base64_encode(Http::get($qr_api_link));
+
+        $img = Image::make($sticker_origin_path);
+        $img->insert($qr_base64, 'center');
+        $this->addText($img, $restaurant_name, $table_number);
+        $img->save($sticker_save_path);
+
+        return $sticker_save_path;
+    }
+
+    private function addText(\Intervention\Image\Image $img, string $restaurant_name, string $table_number): void
     {
         $img->text($restaurant_name, 874, 2080, function ($font) {
             $font->file(realpath('assets/Manrope-Bold.ttf'));
