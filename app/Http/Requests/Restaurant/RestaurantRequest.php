@@ -37,7 +37,7 @@ class RestaurantRequest extends FormRequest
             'name' => ['sometimes', 'required', 'string'],
             'email' => ['sometimes', 'required', 'email'],
             'address' => ['sometimes', 'required', 'string'],
-            'image' => ['image', 'file', 'max:1024'], //change it to image or active_url later
+            'image' => ['mimes:jpg,jpeg,png', 'file', 'max:1024'],
             'owner_name' => ['sometimes', 'required', 'string'],
             'telephone_number' => ['sometimes', 'required', 'numeric']
         ];

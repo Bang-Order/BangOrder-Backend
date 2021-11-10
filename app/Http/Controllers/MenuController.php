@@ -9,6 +9,9 @@ use App\Menu;
 use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class MenuController extends Controller
 {
@@ -62,10 +65,9 @@ class MenuController extends Controller
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
-            if ($request->file('image')) {
-                $image_path = "id_$restaurant->id/menu";
-                $uploaded_image = $request->file('image')->storeAs($image_path, "menu_id_$inserted_data->id.jpg");
-                $inserted_data->update(['image' => asset('storage/' . $uploaded_image)]);
+            if ($request->hasFile('image')) {
+                $image_path = $this->saveImage($restaurant->id, $inserted_data->id, $request->file('image'));
+                $inserted_data->update(['image' => asset($image_path)]);
             }
             return response()->json([
                 'message' => 'Data successfully added',
@@ -91,11 +93,10 @@ class MenuController extends Controller
             }
         }
 
-        if ($request->file('image')) {
-            $image_path = "id_$restaurant->id/menu";
-            $uploaded_image = $request->file('image')->storeAs($image_path, "menu_id_$menu->id.jpg");
+        if ($request->hasFile('image')) {
+            $image_path = $this->saveImage($restaurant->id, $menu->id, $request->file('image'));
             $newrequest = $request->validated();
-            $newrequest['image'] = asset('storage/' . $uploaded_image);
+            $newrequest['image'] = asset($image_path);
         } else {
             $newrequest = $request->validated();
         }
@@ -112,11 +113,46 @@ class MenuController extends Controller
         if ($restaurant->cannot('delete', [$menu, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
+        $restaurant_id = $restaurant->id;
+        $menu_id = $menu->id;
         $deleted_data = $menu->delete();
         if ($deleted_data) {
+            $image_path = "id_$restaurant_id/menu/menu_id_$menu_id.jpg";
+            if (Storage::exists($image_path)) {
+                Storage::delete($image_path);
+            }
             return response()->json(['message' => 'Data successfully deleted']);
         } else {
             return response()->json(['message' => 'Delete failed'], 400);
         }
+    }
+
+    /**
+     * @param string $restaurant_id
+     * @param string $menu_id
+     * @param $image
+     * @return string
+     */
+    private function saveImage(string $restaurant_id, string $menu_id, $image): string
+    {
+        $image_directory_path = "storage/id_$restaurant_id/menu";
+        $image_save_path = "$image_directory_path/menu_id_$menu_id.jpg";
+
+        if (!File::exists($image_directory_path)) {
+            File::makeDirectory($image_directory_path);
+        }
+
+        list($width, $height) = getimagesize($image);
+        if ($width != $height) {
+            if ($width < $height) {
+                $size = $width;
+            } else {
+                $size = $height;
+            }
+            Image::make($image)->fit($size)->save($image_save_path);
+        } else {
+            Image::make($image)->save($image_save_path);
+        }
+        return $image_save_path;
     }
 }
