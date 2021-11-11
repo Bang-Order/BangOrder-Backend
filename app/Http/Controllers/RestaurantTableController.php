@@ -7,9 +7,11 @@ use App\Http\Resources\RestaurantTable\RestaurantTableCollection;
 use App\Http\Resources\RestaurantTable\RestaurantTableResource;
 use App\Restaurant;
 use App\RestaurantTable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class RestaurantTableController extends Controller
@@ -34,8 +36,7 @@ class RestaurantTableController extends Controller
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
-            $sticker_save_path = $this->generateQrRCode($restaurant->id, $inserted_data->id,
-                $restaurant->name, $inserted_data->table_number);
+            $sticker_save_path = $this->generateQrCode($restaurant, $inserted_data);
 
             $inserted_data->update(['link' => asset($sticker_save_path)]);
 
@@ -101,9 +102,9 @@ class RestaurantTableController extends Controller
         }
         $deleted_data = $table->delete();
         if ($deleted_data) {
-            $sticker_path = "storage/id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
-            if (File::exists($sticker_path)) {
-                File::delete($sticker_path);
+            $sticker_path = "id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
+            if (Storage::exists($sticker_path)) {
+                Storage::delete($sticker_path);
             }
             return response()->json(['message' => 'Data successfully deleted']);
         } else {
@@ -112,18 +113,15 @@ class RestaurantTableController extends Controller
     }
 
     /**
-     * @param string $restaurant_id
-     * @param string $table_id
-     * @param string $restaurant_name
-     * @param string $table_number
+     * @param Restaurant $restaurant
+     * @param Model $table
      * @return string
      */
-    private function generateQrRCode(string $restaurant_id, string $table_id,
-                                     string $restaurant_name, string $table_number): string
+    public function generateQrCode(Restaurant $restaurant, Model $table): string
     {
-        $qr_directory_path = "storage/id_$restaurant_id/qr_code";
-        $sticker_save_path = "$qr_directory_path/qr_id_$table_id.jpg";
-        $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant_id\", \"table_id\":\"$table_id\"}");
+        $qr_directory_path = "storage/id_$restaurant->id/qr_code";
+        $sticker_save_path = "$qr_directory_path/qr_id_$table->id.jpg";
+        $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant->id\", \"table_id\":\"$table->id\"}");
         $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
         $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
 
@@ -135,7 +133,7 @@ class RestaurantTableController extends Controller
 
         $img = Image::make($sticker_origin_path);
         $img->insert($qr_base64, 'center');
-        $this->addText($img, $restaurant_name, $table_number);
+        $this->addText($img, $restaurant->name, $table->table_number);
         $img->save($sticker_save_path);
 
         return $sticker_save_path;

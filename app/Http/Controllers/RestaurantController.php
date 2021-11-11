@@ -66,7 +66,7 @@ class RestaurantController extends Controller
      * @param $image
      * @return string
      */
-    private function saveImage(string $restaurant_id, $image): string
+    public function saveImage(string $restaurant_id, $image): string
     {
         $image_directory_path = "storage/id_$restaurant_id";
         $image_save_path = "$image_directory_path/restaurant_id_$restaurant_id.jpg";
