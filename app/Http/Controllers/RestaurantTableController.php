@@ -13,11 +13,15 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Kreait\Firebase\DynamicLink\AndroidInfo;
+use Kreait\Firebase\DynamicLink\CreateDynamicLink;
+use Kreait\Firebase\DynamicLink\CreateDynamicLink\FailedToCreateDynamicLink;
+use Kreait\Firebase\DynamicLink\NavigationInfo;
 
 class RestaurantTableController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only(['index', 'getQRCode', 'store', 'update', 'destroy']);
+        $this->middleware('auth:sanctum')->only(['index', 'store', 'update', 'destroy']);
     }
 
     public function index(Request $request, Restaurant $restaurant)
@@ -119,9 +123,14 @@ class RestaurantTableController extends Controller
      */
     public function generateQrCode(Restaurant $restaurant, Model $table): string
     {
-        $qr_directory_path = "storage/id_$restaurant->id/qr_code";
-        $sticker_save_path = "$qr_directory_path/qr_id_$table->id.jpg";
-        $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant->id\", \"table_id\":\"$table->id\"}");
+//        $restaurant_id = $restaurant->id;
+//        $table_id = $table->id;
+        $restaurant_id = 1;
+        $table_id = 1;
+        $qr_directory_path = "storage/id_$restaurant_id/qr_code";
+        $sticker_save_path = "$qr_directory_path/qr_id_$table_id.jpg";
+        $qr_value = $this->generateDynamicLink($restaurant_id, $table_id);
+//        $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant->id\", \"table_id\":\"$table->id\"}");
         $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
         $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
 
@@ -153,5 +162,27 @@ class RestaurantTableController extends Controller
             $font->align('center');
             $font->valign('center');
         });
+    }
+
+    /**
+     * @param string $restaurant
+     * @param string $table
+     * @return mixed
+     */
+    private function generateDynamicLink(string $restaurant_id, string $table_id): string
+    {
+        try {
+            $dynamicLinks = app('firebase.dynamic_links');
+//            $url = "https://www.google.com?restaurant_id=$restaurant_id&table_id=$table_id";
+            $url = "https://www.google.com?restaurant_id=1&table_id=1";
+            $action = CreateDynamicLink::forUrl($url)
+                ->withDynamicLinkDomain('https://bangorder.page.link')
+                ->withAndroidInfo(AndroidInfo::new()->withPackageName('com.example.bangorder_mobile'))
+                ->withNavigationInfo(NavigationInfo::new()->withForcedRedirect());
+            $link = $dynamicLinks->createDynamicLink($action);
+        } catch (FailedToCreateDynamicLink $e) {
+            dd($e);
+        }
+        return (string) $link;
     }
 }

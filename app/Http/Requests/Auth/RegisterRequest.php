@@ -30,7 +30,7 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string'],
             'address' => ['required', 'string'],
             'image' => ['mimes:jpg,jpeg,png', 'file', 'max:1024'],
-            'table_amount' => ['required', 'integer', 'gt:0'],
+//            'table_amount' => ['required', 'integer', 'gt:0'],
             'owner_name' => ['required', 'string'],
             'telephone_number' => ['required', 'numeric']
         ];
