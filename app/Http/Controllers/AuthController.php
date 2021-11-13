@@ -59,24 +59,18 @@ class AuthController extends Controller
         }
 
         $token = $registered_data->createToken('auth_token_restaurant_id_' . $restaurant_id)->plainTextToken;
+
 //        for ($i = 1; $i <= $request->table_amount; $i++) {
-//            $response = Http::withToken($token)->post(asset("api/restaurants/$restaurant_id/tables", [
-//                'table_number' => $i
-//            ]));
+//            $table_request = ['table_number' => $i, 'link' => time()];
+//            $table_data = $registered_data->restaurantTables()->create($table_request);
+//            if (empty($table_data)) {
+//                return response()->json(['message' => 'Restaurant table insert failed'], 400);
+//            }
+//            $sticker_save_path = app('App\Http\Controllers\RestaurantTableController')
+//                ->generateQrCode($registered_data, $table_data);
+//            $table_data->update(['link' => asset($sticker_save_path)]);
 //        }
 
-        for ($i = 1; $i <= $request->table_amount; $i++) {
-            $table_request = ['table_number' => $i, 'link' => time()];
-            $table_data = $registered_data->restaurantTables()->create($table_request);
-            if (empty($table_data)) {
-                return response()->json(['message' => 'Restaurant table insert failed'], 400);
-            }
-            $sticker_save_path = app('App\Http\Controllers\RestaurantTableController')
-                ->generateQrCode($registered_data, $table_data);
-            $table_data->update(['link' => asset($sticker_save_path)]);
-        }
-
-        //return new RegisterResource(['restaurant' => $registered_data->refresh(), 'token' => $token]);
         return response()->json([
             'message' => 'Register Success',
             'data' => new RegisterResource(['restaurant' => $registered_data->refresh(), 'token' => $token])
