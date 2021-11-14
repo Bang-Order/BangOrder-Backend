@@ -123,10 +123,8 @@ class RestaurantTableController extends Controller
      */
     public function generateQrCode(Restaurant $restaurant, Model $table): string
     {
-//        $restaurant_id = $restaurant->id;
-//        $table_id = $table->id;
-        $restaurant_id = 1;
-        $table_id = 1;
+        $restaurant_id = $restaurant->id;
+        $table_id = $table->id;
         $qr_directory_path = "storage/id_$restaurant_id/qr_code";
         $sticker_save_path = "$qr_directory_path/qr_id_$table_id.jpg";
         $qr_value = $this->generateDynamicLink($restaurant_id, $table_id);
