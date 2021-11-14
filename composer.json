@@ -20,6 +20,7 @@
         "laravel/framework": "^7.0",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.0",
+        "propaganistas/laravel-phone": "4.2.7",
         "xendit/xendit-php": "^2.16"
     },
     "require-dev": {
