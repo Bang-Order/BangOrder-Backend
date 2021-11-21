@@ -24,6 +24,7 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::post('/order/notify', 'XenditController@notify');
+Route::get('/orders/history', 'OrderController@indexArray');
 
 Route::get('/restaurants/{restaurant}/menu-categories/menus', 'MenuCategoryController@indexWithMenu');
 Route::get('/restaurants/{restaurant}/orders/history', 'OrderController@indexAll');

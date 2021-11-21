@@ -11,6 +11,7 @@ use App\Restaurant;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Xendit\Invoice;
 use Xendit\Xendit;
 
@@ -27,6 +28,7 @@ class OrderController extends Controller
         }
 
         if ($request->status) {
+            $request->validate(['status' => Rule::in(['antri', 'dimasak', 'selesai'])]);
             $data = $restaurant->orders()->where('order_status', $request->status);
         } else {
             $data = $restaurant->orders()->whereIn('order_status', ['antri', 'dimasak']);
@@ -43,6 +45,10 @@ class OrderController extends Controller
 
         $data = $restaurant->orders()->where('order_status', '<>', 'payment_pending');
         if ($start_date = $request->start_date) {
+            $request->validate([
+                'start_date' => 'date_format:Y-m-d',
+                'end_date' => 'date_format:Y-m-d'
+            ]);
             $end_date = $request->end_date ?: now()->toDateString();
             if (strtotime($start_date) <= strtotime($end_date)) {
                 $data = $data->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
@@ -51,6 +57,14 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Start date value must lower than end date'], 422);
             }
         }
+        return new OrderCollection($data
+            ->with('orderItems.menu')
+            ->get());
+    }
+
+    public function indexArray(Request $request) {
+        $request->validate(['order_id' => 'array']);
+        $data = Order::whereIn('id', $request->order_id)->latest();
         return new OrderCollection($data
             ->with('orderItems.menu')
             ->get());
