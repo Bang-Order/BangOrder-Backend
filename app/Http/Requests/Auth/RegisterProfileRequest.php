@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class RegisterProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,6 @@ class RegisterRequest extends FormRequest
         return [
             'email' => ['required', 'email', 'unique:App\Restaurant,email'],
             'password' => ['required', 'string', 'min:8'],
-            'confirm_password' => ['required', 'string', 'min:8', 'same:password'],
             'name' => ['required', 'string'],
             'address' => ['required', 'string'],
             'image' => ['mimes:jpg,jpeg,png', 'file', 'max:1024'],

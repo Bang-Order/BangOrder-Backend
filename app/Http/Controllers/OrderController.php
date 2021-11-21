@@ -41,7 +41,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 
-        $data = $restaurant->orders();
+        $data = $restaurant->orders()->where('order_status', '<>', 'payment_pending');
         if ($start_date = $request->start_date) {
             $end_date = $request->end_date ?: now()->toDateString();
             if (strtotime($start_date) <= strtotime($end_date)) {
