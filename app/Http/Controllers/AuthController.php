@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RegisterAccountRequest;
+use App\Http\Requests\Auth\RegisterProfileRequest;
 use App\Http\Resources\Auth\LoginResource;
 use App\Http\Resources\Auth\RegisterResource;
 use App\Http\Resources\Restaurant\RestaurantResource;
@@ -37,9 +38,18 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(RegisterRequest $request) {
-        $request->request->add(['password' => Hash::make($request->password)]);
-        $registered_data = Restaurant::create($request->except(['confirm_password', 'table_amount', 'image']));
+    public function registerAccount(RegisterAccountRequest $request) {
+        return response()->json([
+            'message' => 'Account is Available',
+            'data' => [
+                'email' => $request->email,
+                'password' => Hash::make($request->password)
+            ]
+        ]);
+    }
+
+    public function registerProfile(RegisterProfileRequest $request) {
+        $registered_data = Restaurant::create($request->except(['image']));
         if (empty($registered_data)) {
             return response()->json(['message' => 'Register failed'], 400);
         }

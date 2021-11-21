@@ -128,7 +128,6 @@ class RestaurantTableController extends Controller
         $qr_directory_path = "storage/id_$restaurant_id/qr_code";
         $sticker_save_path = "$qr_directory_path/qr_id_$table_id.jpg";
         $qr_value = $this->generateDynamicLink($restaurant_id, $table_id);
-//        $qr_value = base64_encode("{\"restaurant_id\":\"$restaurant->id\", \"table_id\":\"$table->id\"}");
         $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
         $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
 
@@ -171,8 +170,7 @@ class RestaurantTableController extends Controller
     {
         try {
             $dynamicLinks = app('firebase.dynamic_links');
-//            $url = "https://www.google.com?restaurant_id=$restaurant_id&table_id=$table_id";
-            $url = "https://www.google.com?restaurant_id=1&table_id=1";
+            $url = "https://www.google.com?restaurant_id=$restaurant_id&table_id=$table_id";
             $action = CreateDynamicLink::forUrl($url)
                 ->withDynamicLinkDomain('https://bangorder.page.link')
                 ->withAndroidInfo(AndroidInfo::new()->withPackageName('com.example.bangorder_mobile'))

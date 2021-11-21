@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('auth')->group(function () {
     Route::post('/', 'AuthController@auth');
     Route::post('/login', 'AuthController@login');
-    Route::post('/register', 'AuthController@register');
+    Route::post('/register/account', 'AuthController@registerAccount');
+    Route::post('/register/profile', 'AuthController@registerProfile');
     Route::post('/logout', 'AuthController@logout');
 });
 
