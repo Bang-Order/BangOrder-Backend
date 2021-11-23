@@ -4,6 +4,7 @@ namespace App\Http\Requests\Restaurant;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Gate;
 
 class RestaurantRequest extends FormRequest
 {
@@ -14,11 +15,7 @@ class RestaurantRequest extends FormRequest
      */
     public function authorize()
     {
-        $auth_id = $this->user()->id;
-        if ($auth_id == $this->restaurant->id) {
-            return true;
-        }
-        return false;
+        return Gate::allows('restaurant-auth', $this->restaurant);
     }
 
     public function failedAuthorization()
