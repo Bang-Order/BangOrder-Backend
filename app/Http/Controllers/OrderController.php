@@ -12,13 +12,16 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Kreait\Firebase\Database;
+use Kreait\Firebase\Exception\DatabaseException;
 use Xendit\Invoice;
 use Xendit\Xendit;
 
 class OrderController extends Controller
 {
-    public function __construct() {
+    public function __construct(Database $database) {
         $this->middleware('auth:sanctum')->only(['index', 'indexAll', 'update', 'destroy']);
+        $this->database = $database;
     }
 
     public function index(Request $request, Restaurant $restaurant)
@@ -124,8 +127,8 @@ class OrderController extends Controller
                 $inserted_order->delete();
                 return response()->json(['message' => 'Insert OrderItem failed'], 400);
             } else {
+                // Create xendit invoice charge
                 try {
-                    // Create xendit invoice charge
                     Xendit::setApiKey(env('XENDIT_API_KEY'));
                     $params = [
                         'external_id' => "Bang Order - $restaurant->name - $inserted_order->id",
@@ -134,16 +137,40 @@ class OrderController extends Controller
                         'items' => $items
                     ];
                     $createInvoice = Invoice::create($params);
-                    $invoice_id = $createInvoice['id'];
-                    $invoice_url = $createInvoice['invoice_url'];
-                    $inserted_order->update(['transaction_id' => $invoice_id, 'invoice_url' => $invoice_url]);
+                    $inserted_order->update([
+                        'transaction_id' => $createInvoice['id'],
+                        'invoice_url' => $createInvoice['invoice_url']
+                    ]);
                 } catch (Exception $e) {
                     $inserted_order->delete();
                     return response()->json(['message' => 'Xendit error: ' . $e->getMessage()], $e->getCode());
                 }
+
+                $orderResource = new OrderResource($inserted_order->refresh()->load('orderItems.menu'));
+                //filter resource to insert it into realtime databse
+                $filteredKey  = ['table_number', 'created_at', 'order_status', 'total_price', 'order_items'];
+                $filteredResource = array_filter(
+                    json_decode($orderResource->toJson(), true),
+                    function ($key) use ($filteredKey) {
+                        return in_array($key, $filteredKey);
+                    },
+                    ARRAY_FILTER_USE_KEY
+                );
+
+                //add order data into firebase realtime database
+                try {
+                    $this->database
+                        ->getReference("orders/$restaurant->id/$inserted_order->id")
+                        ->set($filteredResource);
+                } catch (Exception $e) {
+                    $inserted_order->delete();
+                    return response()->json(['message' => 'Firebase Realtime Database error: ' . $e->getMessage()],
+                        $e->getCode());
+                }
+
                 return response()->json([
                     'message' => 'Data successfully created',
-                    'data' => new OrderResource($inserted_order->refresh()->load('orderItems.menu'))
+                    'data' => $orderResource
                 ], 201);
             }
         }
@@ -161,6 +188,29 @@ class OrderController extends Controller
     {
         $updated_data = $order->update($request->validated());
         if ($updated_data) {
+            //update order status on firebase realtime database
+            try {
+                $referencePath = "orders/$restaurant->id/$order->id";
+                if ($this->database->getReference($referencePath)->getSnapshot()->exists()) {
+                    $order_status = $order->order_status;
+                    switch ($order_status) {
+                        case 'selesai':
+                            $this->database
+                                ->getReference($referencePath)
+                                ->remove();
+                            break;
+                        default:
+                            $this->database
+                                ->getReference($referencePath)
+                                ->getChild('order_status')
+                                ->set($order_status);
+                            break;
+                    }
+                }
+            } catch (DatabaseException $e) {
+                return response()->json(['message' => 'Firebase Realtime Database error: ' . $e->getMessage()],
+                    $e->getCode());
+            }
             return response()->json([
                 'message' => 'Data successfully updated',
                 'data' => new OrderResource($order->load('orderItems.menu'))
@@ -177,6 +227,18 @@ class OrderController extends Controller
         }
         $deleted_data = $order->delete();
         if ($deleted_data) {
+            //Delete an order from firebase realtime database
+            try {
+                $referencePath = "orders/$restaurant->id/$order->id";
+                if ($this->database->getReference($referencePath)->getSnapshot()->exists()) {
+                    $this->database
+                        ->getReference($referencePath)
+                        ->remove();
+                }
+            } catch (DatabaseException $e) {
+                return response()->json(['message' => 'Firebase Realtime Database error: ' . $e->getMessage()],
+                    $e->getCode());
+            }
             return response()->json(['message' => 'Data successfully deleted']);
         } else {
             return response()->json(['message' => 'Delete failed'], 400);
