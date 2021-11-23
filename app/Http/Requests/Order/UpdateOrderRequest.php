@@ -15,11 +15,6 @@ class UpdateOrderRequest extends FormRequest
      */
     public function authorize()
     {
-//        $auth_id = $this->user()->id;
-//        if ($auth_id == $this->restaurant->id && $auth_id == $this->order->restaurant_id) {
-//            return true;
-//        }
-//        return false;
         return $this->user()->can('update', [$this->order, $this->restaurant->id]);
     }
 
@@ -37,7 +32,6 @@ class UpdateOrderRequest extends FormRequest
     {
         return [
             'order_status' => [Rule::in(['antri', 'dimasak', 'selesai'])],
-            'payment_status' => [Rule::in(['pending', 'success'])],
         ];
     }
 }
