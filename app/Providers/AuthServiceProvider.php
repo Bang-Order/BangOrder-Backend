@@ -8,6 +8,7 @@ use App\Order;
 use App\Policies\MenuCategoryPolicy;
 use App\Policies\MenuPolicy;
 use App\Policies\OrderPolicy;
+use App\Restaurant;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -34,6 +35,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('restaurant-auth', function (Restaurant $auth, Restaurant $restaurant) {
+            return $auth->id == $restaurant->id;
+        });
     }
 }

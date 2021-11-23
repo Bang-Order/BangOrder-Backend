@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Restaurant\RestaurantRequest;
+use App\Http\Resources\Restaurant\RestaurantDashboardResource;
 use App\Http\Resources\Restaurant\RestaurantResource;
 use App\Restaurant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
 use Intervention\Image\Facades\Image;
 
 class RestaurantController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only('show', 'update');
+        $this->middleware('auth:sanctum')->only('show', 'showDashboard', 'update');
     }
 
     public function index()
@@ -27,11 +30,47 @@ class RestaurantController extends Controller
 
     public function show(Request $request, Restaurant $restaurant)
     {
-        $auth_id = $request->user()->id;
-        if ($auth_id != $restaurant->id) {
+        if (Gate::denies('restaurant-auth', $restaurant)) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
         return new RestaurantResource($restaurant);
+    }
+
+    public function showDashboard(Request $request, Restaurant $restaurant) {
+        if (Gate::denies('restaurant-auth', $restaurant)) {
+            return response()->json(['message' => 'This action is unauthorized.'], 401);
+        }
+
+        $data = $restaurant->orders()
+            ->selectRaw("DATE_FORMAT(created_at, '%d-%m-%Y') date, count(*) order_count, sum(total_price) total_income")
+            ->where('order_status', '<>', 'payment_pending')
+            ->groupBy('date');
+
+        $todayData = with(clone $data)->first();
+        if ($todayData->date != date('d-m-Y')) {
+            $todayData->date = date('d-m-Y');
+            $todayData->order_count = 0;
+            $todayData->total_income = 0;
+        }
+
+        if ($start_date = $request->start_date) {
+            $request->validate([
+                'start_date' => 'date_format:Y-m-d',
+                'end_date' => 'date_format:Y-m-d'
+            ]);
+            $end_date = $request->end_date ?: now()->toDateString();
+            if (strtotime($start_date) <= strtotime($end_date)) {
+                $data = $data->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
+            }
+            else {
+                return response()->json(['message' => 'Start date value must lower than end date'], 422);
+            }
+        }
+
+        return response()->json([
+            'today_data' => new RestaurantDashboardResource($todayData),
+            'data' => RestaurantDashboardResource::collection($data->get())
+        ]);
     }
 
     public function update(RestaurantRequest $request, Restaurant $restaurant)
