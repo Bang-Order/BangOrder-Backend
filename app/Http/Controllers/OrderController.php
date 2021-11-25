@@ -148,7 +148,7 @@ class OrderController extends Controller
 
                 $orderResource = new OrderResource($inserted_order->refresh()->load('orderItems.menu'));
                 //filter resource to insert it into realtime databse
-                $filteredKey  = ['table_number', 'created_at', 'order_status', 'total_price', 'order_items'];
+                $filteredKey  = ['id', 'table_number', 'created_at', 'order_status', 'total_price', 'order_items'];
                 $filteredResource = array_filter(
                     json_decode($orderResource->toJson(), true),
                     function ($key) use ($filteredKey) {
