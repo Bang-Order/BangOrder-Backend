@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Restaurant\RestaurantRequest;
-use App\Http\Resources\Restaurant\RestaurantDashboardResource;
+use App\Http\Resources\Restaurant\DashboardIncomeResource;
+use App\Http\Resources\Restaurant\DashboardWithdrawResource;
 use App\Http\Resources\Restaurant\RestaurantResource;
 use App\Restaurant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Intervention\Image\Facades\Image;
@@ -33,7 +33,7 @@ class RestaurantController extends Controller
         if (Gate::denies('restaurant-auth', $restaurant)) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-        return new RestaurantResource($restaurant);
+        return new RestaurantResource($restaurant->load('bankAccount'));
     }
 
     public function showDashboard(Request $request, Restaurant $restaurant) {
@@ -41,17 +41,25 @@ class RestaurantController extends Controller
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 
-        $data = $restaurant->orders()
-            ->selectRaw("DATE_FORMAT(created_at, '%d-%m-%Y') date, count(*) order_count, sum(total_price) total_income")
-            ->where('order_status', '<>', 'payment_pending')
+//        $incomeData = $restaurant->orders()
+//            ->selectRaw("DATE_FORMAT(created_at, '%d-%m-%Y') date, count(*) order_count, sum(total_price) total_income")
+//            ->where('order_status', '<>', 'payment_pending')
+//            ->groupBy('date');
+
+        $incomeData = $restaurant->balanceTransactions()
+            ->selectRaw("DATE_FORMAT(created_at, '%d-%m-%Y') date, count(*) order_count, sum(amount) total_income")
+            ->where('transaction_type', 'IN')
             ->groupBy('date');
 
-        $todayData = with(clone $data)->first();
+        $todayData = with(clone $incomeData)->first();
         if ($todayData->date != date('d-m-Y')) {
             $todayData->date = date('d-m-Y');
             $todayData->order_count = 0;
             $todayData->total_income = 0;
         }
+
+        $withdrawData = $restaurant->balanceTransactions()
+            ->where('transaction_type', 'OUT');
 
         if ($start_date = $request->start_date) {
             $request->validate([
@@ -60,7 +68,8 @@ class RestaurantController extends Controller
             ]);
             $end_date = $request->end_date ?: now()->toDateString();
             if (strtotime($start_date) <= strtotime($end_date)) {
-                $data = $data->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
+                $incomeData = $incomeData->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
+                $withdrawData = $withdrawData->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
             }
             else {
                 return response()->json(['message' => 'Start date value must lower than end date'], 422);
@@ -68,8 +77,10 @@ class RestaurantController extends Controller
         }
 
         return response()->json([
-            'today_data' => new RestaurantDashboardResource($todayData),
-            'data' => RestaurantDashboardResource::collection($data->get())
+            'total_balance' => $restaurant->bankAccount->total_balance,
+            'today_data' => new DashboardIncomeResource($todayData),
+            'income_data' => DashboardIncomeResource::collection($incomeData->get()),
+            'withdraw_data' => DashboardWithdrawResource::collection($withdrawData->get())
         ]);
     }
 
@@ -83,12 +94,13 @@ class RestaurantController extends Controller
             $newrequest = $request->validated();
         }
 
-        $updatedData = $restaurant->update($newrequest);
+        $updatedData = $restaurant->update($newrequest)
+            && $restaurant->bankAccount()->update($request->only(['bank_name', 'account_holder_name', 'account_number']));;
 
         if ($updatedData) {
             return response()->json([
                 'message' => 'Data successfully updated',
-                'data' => new RestaurantResource($restaurant)
+                'data' => new RestaurantResource($restaurant->load('bankAccount'))
             ]);
         } else {
             return response()->json(['message' => 'Update failed'], 400);

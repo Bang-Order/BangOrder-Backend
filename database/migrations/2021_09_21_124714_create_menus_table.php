@@ -19,7 +19,7 @@ class CreateMenusTable extends Migration
             $table->foreignId('menu_category_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->integer('price');
+            $table->unsignedInteger('price');
             $table->string('image')->default(asset('assets/default_menu.jpg'));
             $table->boolean('is_available')->default(true);
             $table->boolean('is_recommended')->default(false);

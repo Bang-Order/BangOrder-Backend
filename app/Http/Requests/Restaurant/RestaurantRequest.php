@@ -36,7 +36,10 @@ class RestaurantRequest extends FormRequest
             'address' => ['sometimes', 'required', 'string'],
             'image' => ['mimes:jpg,jpeg,png', 'file', 'max:1024'],
             'owner_name' => ['sometimes', 'required', 'string'],
-            'telephone_number' => ['sometimes', 'required', 'phone:ID']
+            'telephone_number' => ['sometimes', 'required', 'phone:ID'],
+            'bank_name' => ['sometimes', 'required'],
+            'account_holder_name' => ['sometimes', 'required', 'string'],
+            'account_number' => ['sometimes', 'required', 'numeric']
         ];
     }
 }

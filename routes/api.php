@@ -23,10 +23,16 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', 'AuthController@logout');
 });
 
-Route::post('/order/notify', 'XenditController@notify');
+Route::prefix('notify')->group(function () {
+    Route::post('/order', 'XenditController@orderNotify');
+    Route::post('/withdraw', 'XenditController@withdrawNotify');
+});
+
+
 Route::get('/orders/history', 'OrderController@indexArray');
 
 Route::get('/restaurants/{restaurant}/dashboard', 'RestaurantController@showDashboard');
+Route::post('/restaurants/{restaurant}/withdraw', 'BankAccountController@withdraw');
 Route::get('/restaurants/{restaurant}/menu-categories/menus', 'MenuCategoryController@indexWithMenu');
 Route::get('/restaurants/{restaurant}/orders/history', 'OrderController@indexAll');
 Route::get('/restaurants/{restaurant}/tables/{table}/downloadQRCode', 'RestaurantTableController@getQRCode');

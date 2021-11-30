@@ -22,6 +22,9 @@ class RestaurantResource extends JsonResource
             'image' => $this->image,
             'owner_name' => $this->owner_name,
             'telephone_number' => $this->telephone_number,
+            'bank_name' => $this->bankAccount->bank_name,
+            'account_holder_name' => $this->bankAccount->account_holder_name,
+            'account_number' => $this->bankAccount->account_number,
         ];
     }
 }

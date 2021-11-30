@@ -54,6 +54,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Register failed'], 400);
         }
         $restaurant_id = $registered_data->id;
+        $registered_data->bankAccount()->create($request->only(['bank_name', 'account_holder_name', 'account_number']));
 
         $restaurant_directory = "storage/id_$restaurant_id";
         if (!File::exists($restaurant_directory)) {
@@ -83,7 +84,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Register Success',
-            'data' => new RegisterResource(['restaurant' => $registered_data->refresh(), 'token' => $token])
+            'data' => new RegisterResource(['restaurant' => $registered_data->refresh()->load('bankAccount'), 'token' => $token])
         ], 201);
     }
 

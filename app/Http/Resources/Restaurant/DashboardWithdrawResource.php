@@ -4,7 +4,7 @@ namespace App\Http\Resources\Restaurant;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RestaurantDashboardResource extends JsonResource
+class DashboardWithdrawResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,9 +15,8 @@ class RestaurantDashboardResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'date' => $this->date,
-            'total_order' => $this->order_count,
-            'total_income' => $this->total_income
+            'time' => $this->created_at->format('d-m-Y H:i'),
+            'amount' => $this->amount
         ];
     }
 }

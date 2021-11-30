@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             RestaurantTableSeeder::class,
             //OrderSeeder::class,
             // OrderItemSeeder::class
+            BankAccountSeeder::class,
         ]);
     }
 }
