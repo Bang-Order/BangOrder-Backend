@@ -41,6 +41,14 @@ class Restaurant extends Authenticatable
     }
 
     public function orders() {
-        return$this->hasMany('App\Order')->latest();
+        return $this->hasMany('App\Order')->latest();
+    }
+
+    public function bankAccount() {
+        return $this->hasOne('App\BankAccount');
+    }
+
+    public function balanceTransactions() {
+        return $this->hasMany('App\BalanceTransaction')->latest();
     }
 }

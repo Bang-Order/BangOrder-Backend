@@ -31,7 +31,10 @@ class RegisterProfileRequest extends FormRequest
             'image' => ['mimes:jpg,jpeg,png', 'file', 'max:1024'],
 //            'table_amount' => ['required', 'integer', 'gt:0'],
             'owner_name' => ['required', 'string'],
-            'telephone_number' => ['required', 'phone:ID']
+            'telephone_number' => ['required', 'phone:ID'],
+            'bank_name' => ['required'],
+            'account_holder_name' => ['required', 'string'],
+            'account_number' => ['required', 'numeric']
         ];
     }
 }

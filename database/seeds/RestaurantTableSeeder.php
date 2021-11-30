@@ -1,6 +1,6 @@
 <?php
 
-use App\RestaurantTable;
+use App\Restaurant;
 use Illuminate\Database\Seeder;
 
 class RestaurantTableSeeder extends Seeder
@@ -12,6 +12,11 @@ class RestaurantTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(RestaurantTable::class, 1)->create();
+        $restaurant = Restaurant::first();
+        $restaurant->restaurantTables()->create([
+            'restaurant_id' => 1,
+            'table_number' => '1',
+            'link' => 'http://localhost:8000/storage/id_1/qr_code/qr_id_1.jpg'
+        ]);
     }
 }

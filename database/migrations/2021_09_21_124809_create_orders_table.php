@@ -15,11 +15,12 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->constrained();
-            $table->foreignId('restaurant_table_id')->constrained();
-            $table->integer('total_price');
+            $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
+            $table->foreignId('restaurant_table_id')->nullable()->constrained()->onDelete('set null');
+            $table->unsignedInteger('total_price');
             $table->string('transaction_id')->unique();
-            $table->string('order_status')->default('payment_pending');
+//            $table->string('order_status')->default('payment_pending');
+            $table->enum('order_status', ['payment_pending', 'antri', 'dimasak', 'selesai'])->default('payment_pending');
             $table->string('invoice_url')->nullable();
             $table->timestamps();
         });

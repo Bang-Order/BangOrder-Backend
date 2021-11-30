@@ -23,6 +23,9 @@ class RegisterResource extends JsonResource
             'image' => $this['restaurant']->image,
             'owner_name' => $this['restaurant']->owner_name,
             'telephone_number' => $this['restaurant']->telephone_number,
+            'bank_name' => $this['restaurant']->bankAccount->bank_name,
+            'account_holder_name' => $this['restaurant']->bankAccount->account_holder_name,
+            'account_number' => $this['restaurant']->bankAccount->account_number,
             'access_token' => $this['token'],
             'token_type' => 'Bearer'
         ];
