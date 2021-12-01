@@ -14,11 +14,17 @@ class MenuResource extends JsonResource
      */
     public function toArray($request)
     {
+        if ($this->menuCategory) {
+            $menuCategory = $this->menuCategory->name;
+        } else {
+            $menuCategory = null;
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'category_id' => $this->menu_category_id,
-            'menu_category' => $this->menuCategory->name,
+            'menu_category' => $menuCategory,
             'description' => $this->description,
             'price' => $this->price,
             'image' => $this->image,

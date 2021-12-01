@@ -90,7 +90,10 @@ class RestaurantController extends Controller
     public function update(RestaurantRequest $request, Restaurant $restaurant)
     {
         if ($request->hasFile('image')) {
-            $imageLink = $this->saveImage($restaurant->id, $request->file('image'));
+            $imagePath = "id_$restaurant->id/restaurant_id_$restaurant->id.jpg";
+            $imageController = app('App\Http\Controllers\ImageController');
+            $streamedImage = $imageController->cropImage($request->file('image'));
+            $imageLink = $imageController->uploadImage($streamedImage, $imagePath);
             $newrequest = $request->validated();
             $newrequest['image'] = $imageLink;
         } else {
@@ -113,29 +116,5 @@ class RestaurantController extends Controller
     public function destroy(Restaurant $restaurant)
     {
         return response()->json(['message' => 'There are no DELETE method in RestaurantController'], 405);
-    }
-
-    /**
-     * @param string $restaurant_id
-     * @param $image
-     * @return string
-     */
-    public function saveImage(string $restaurant_id, $image): string
-    {
-        $imagePath = "id_$restaurant_id/restaurant_id_$restaurant_id.jpg";
-        $imageLink = env('FIREBASE_STORAGE_URL') . str_replace('/', '%2F', $imagePath) . '?alt=media';
-
-        list($width, $height) = getimagesize($image);
-        if ($width != $height) {
-            $size = $width < $height ? $width : $height;
-            $encodedImage = Image::make($image)->fit($size)->stream('jpg');
-        } else {
-            $encodedImage = Image::make($image)->stream('jpg');
-        }
-        $bucket = app('firebase.storage')->getBucket();
-        $bucket->upload($encodedImage->__toString(), [
-            'name' => $imagePath
-        ]);
-        return $imageLink;
     }
 }

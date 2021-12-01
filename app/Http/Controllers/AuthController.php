@@ -56,17 +56,12 @@ class AuthController extends Controller
         $restaurant_id = $registered_data->id;
         $registered_data->bankAccount()->create($request->only(['bank_name', 'account_holder_name', 'account_number']));
 
-        $restaurant_directory = "storage/id_$restaurant_id";
-        if (!File::exists($restaurant_directory)) {
-            File::makeDirectory($restaurant_directory);
-            File::makeDirectory($restaurant_directory . '/menu');
-            File::makeDirectory($restaurant_directory . '/qr_code');
-        }
-
         if ($request->hasFile('image')) {
-            $image_path = app('App\Http\Controllers\RestaurantController')
-                ->saveImage($restaurant_id, $request->file('image'));
-            $registered_data->update(['image' => asset($image_path)]);
+            $imagePath = "id_$restaurant_id/restaurant_id_$restaurant_id.jpg";
+            $imageController = app('App\Http\Controllers\ImageController');
+            $streamedImage = $imageController->cropImage($request->file('image'));
+            $imageLink = $imageController->uploadImage($streamedImage, $imagePath);
+            $registered_data->update(['image' => $imageLink]);
         }
 
         $token = $registered_data->createToken('auth_token_restaurant_id_' . $restaurant_id)->plainTextToken;
