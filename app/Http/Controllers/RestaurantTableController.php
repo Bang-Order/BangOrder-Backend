@@ -11,17 +11,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Kreait\Firebase\DynamicLink\AndroidInfo;
 use Kreait\Firebase\DynamicLink\CreateDynamicLink;
 use Kreait\Firebase\DynamicLink\CreateDynamicLink\FailedToCreateDynamicLink;
 use Kreait\Firebase\DynamicLink\NavigationInfo;
+use Kreait\Firebase\Storage;
 
 class RestaurantTableController extends Controller
 {
-    public function __construct() {
+    public function __construct(Storage $storage) {
         $this->middleware('auth:sanctum')->only(['index', 'store', 'update', 'destroy']);
+        $this->bucket = $storage->getBucket();
+        $this->imageController = app('App\Http\Controllers\ImageController');
     }
 
     public function index(Request $request, Restaurant $restaurant)
@@ -40,9 +42,9 @@ class RestaurantTableController extends Controller
         if (empty($inserted_data)) {
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
-            $sticker_save_path = $this->generateQrCode($restaurant, $inserted_data);
+            $stickerSaveLink = $this->generateQrSticker($restaurant, $inserted_data);
 
-            $inserted_data->update(['link' => asset($sticker_save_path)]);
+            $inserted_data->update(['link' => $stickerSaveLink]);
 
             return response()->json([
                 'message' => 'Data successfully added',
@@ -72,22 +74,26 @@ class RestaurantTableController extends Controller
         if ($restaurant->cannot('view', [$table, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-        $sticker_path = "storage/id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
-        return response()->download($sticker_path);
+        $table_id = $table->id;
+        $link = $table->link;
+        return response()->streamDownload(function () use ($link) {
+            echo readfile($link);
+        }, "qr_id_$table_id.jpg");
     }
 
     public function update(RestaurantTableRequest $request, Restaurant $restaurant, RestaurantTable $table)
     {
         $updated_data = $table->update($request->validated());
         if ($updated_data) {
-            $sticker_path = "storage/id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
+            $imagePath = "id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
 
-            $img = Image::make($sticker_path);
+            $img = Image::make($table->link);
             $img->rectangle(0, 2000, 1748, 2480, function ($draw) {
                 $draw->background('#FFC300');
             });
             $this->addText($img, $restaurant->name, $table->table_number);
-            $img->save($sticker_path);
+            $encodedImage = $img->stream('jpg');
+            $this->imageController->uploadImage($encodedImage, $imagePath);
 
             return response()->json([
                 'message' => 'Data successfully updated',
@@ -106,10 +112,8 @@ class RestaurantTableController extends Controller
         }
         $deleted_data = $table->delete();
         if ($deleted_data) {
-            $sticker_path = "id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
-            if (Storage::exists($sticker_path)) {
-                Storage::delete($sticker_path);
-            }
+            $imagePath = "id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
+            $this->imageController->deleteImage($imagePath);
             return response()->json(['message' => 'Data successfully deleted']);
         } else {
             return response()->json(['message' => 'Delete failed'], 400);
@@ -121,28 +125,24 @@ class RestaurantTableController extends Controller
      * @param Model $table
      * @return string
      */
-    public function generateQrCode(Restaurant $restaurant, Model $table): string
+    public function generateQrSticker(Restaurant $restaurant, Model $table)
     {
         $restaurant_id = $restaurant->id;
         $table_id = $table->id;
-        $qr_directory_path = "storage/id_$restaurant_id/qr_code";
-        $sticker_save_path = "$qr_directory_path/qr_id_$table_id.jpg";
+        $imagePath = "id_$restaurant_id/qr_code/qr_id_$table_id.jpg";
         $qr_value = $this->generateDynamicLink($restaurant_id, $table_id);
         $sticker_origin_path = 'assets/Sticker_QR_Code.jpg';
         $qr_api_link = "https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=$qr_value";
-
-        if (!File::exists($qr_directory_path)) {
-            File::makeDirectory($qr_directory_path);
-        }
 
         $qr_base64 = base64_encode(Http::get($qr_api_link));
 
         $img = Image::make($sticker_origin_path);
         $img->insert($qr_base64, 'center');
         $this->addText($img, $restaurant->name, $table->table_number);
-        $img->save($sticker_save_path);
+        $encodedImage = $img->stream('jpg');
 
-        return $sticker_save_path;
+        $imageLink = $this->imageController->uploadImage($encodedImage, $imagePath);
+        return $imageLink;
     }
 
     private function addText(\Intervention\Image\Image $img, string $restaurant_name, string $table_number): void

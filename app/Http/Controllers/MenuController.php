@@ -10,13 +10,15 @@ use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
+use Kreait\Firebase\Storage;
 use Intervention\Image\Facades\Image;
 
 class MenuController extends Controller
 {
-    public function __construct() {
+    public function __construct(Storage $storage) {
         $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+        $this->bucket = $storage->getBucket();
+        $this->imageController = app('App\Http\Controllers\ImageController');
     }
 
     public function index(Restaurant $restaurant, Request $request) {
@@ -54,7 +56,7 @@ class MenuController extends Controller
 
     public function store(Restaurant $restaurant, MenuRequest $request) {
         $menu_category = $restaurant->menuCategories()->find($request->menu_category_id);
-        if (!$menu_category) {
+        if ($request->menu_category_id && !$menu_category) {
             return response()->json([
                 'message' => 'Menu Category ID is invalid'], 404
             );
@@ -66,8 +68,10 @@ class MenuController extends Controller
             return response()->json(['message' => 'Insert failed'], 400);
         } else {
             if ($request->hasFile('image')) {
-                $image_path = $this->saveImage($restaurant->id, $inserted_data->id, $request->file('image'));
-                $inserted_data->update(['image' => asset($image_path)]);
+                $imagePath = "id_$restaurant->id/menu/menu_id_$inserted_data->id.jpg";
+                $streamedImage = $this->imageController->cropImage($request->file('image'));
+                $imageLink = $this->imageController->uploadImage($streamedImage, $imagePath);
+                $inserted_data->update(['image' => $imageLink]);
             }
             return response()->json([
                 'message' => 'Data successfully added',
@@ -93,12 +97,12 @@ class MenuController extends Controller
             }
         }
 
+        $newrequest = $request->validated();
         if ($request->hasFile('image')) {
-            $image_path = $this->saveImage($restaurant->id, $menu->id, $request->file('image'));
-            $newrequest = $request->validated();
-            $newrequest['image'] = asset($image_path);
-        } else {
-            $newrequest = $request->validated();
+            $imagePath = "id_$restaurant->id/menu/menu_id_$menu->id.jpg";
+            $streamedImage = $this->imageController->cropImage($request->file('image'));
+            $imageLink = $this->imageController->uploadImage($streamedImage, $imagePath);
+            $newrequest['image'] = $imageLink;
         }
 
         $updated_data = $menu->update($newrequest);
@@ -113,46 +117,13 @@ class MenuController extends Controller
         if ($restaurant->cannot('delete', [$menu, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-        $restaurant_id = $restaurant->id;
-        $menu_id = $menu->id;
         $deleted_data = $menu->delete();
         if ($deleted_data) {
-            $image_path = "id_$restaurant_id/menu/menu_id_$menu_id.jpg";
-            if (Storage::exists($image_path)) {
-                Storage::delete($image_path);
-            }
+            $imagePath = "id_$restaurant->id/menu/menu_id_$menu->id.jpg";
+            $this->imageController->deleteImage($imagePath);
             return response()->json(['message' => 'Data successfully deleted']);
         } else {
             return response()->json(['message' => 'Delete failed'], 400);
         }
-    }
-
-    /**
-     * @param string $restaurant_id
-     * @param string $menu_id
-     * @param $image
-     * @return string
-     */
-    private function saveImage(string $restaurant_id, string $menu_id, $image): string
-    {
-        $image_directory_path = "storage/id_$restaurant_id/menu";
-        $image_save_path = "$image_directory_path/menu_id_$menu_id.jpg";
-
-        if (!File::exists($image_directory_path)) {
-            File::makeDirectory($image_directory_path);
-        }
-
-        list($width, $height) = getimagesize($image);
-        if ($width != $height) {
-            if ($width < $height) {
-                $size = $width;
-            } else {
-                $size = $height;
-            }
-            Image::make($image)->fit($size)->save($image_save_path);
-        } else {
-            Image::make($image)->save($image_save_path);
-        }
-        return $image_save_path;
     }
 }
