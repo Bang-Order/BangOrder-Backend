@@ -41,22 +41,12 @@ class RestaurantController extends Controller
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
 
-//        $incomeData = $restaurant->orders()
-//            ->selectRaw("DATE_FORMAT(created_at, '%d-%m-%Y') date, count(*) order_count, sum(total_price) total_income")
-//            ->where('order_status', '<>', 'payment_pending')
-//            ->groupBy('date');
-
         $incomeData = $restaurant->balanceTransactions()
             ->selectRaw("DATE_FORMAT(created_at, '%d-%m-%Y') date, count(*) order_count, sum(amount) total_income")
             ->where('transaction_type', 'IN')
             ->groupBy('date');
 
         $todayData = with(clone $incomeData)->first();
-        if ($todayData->date != date('d-m-Y')) {
-            $todayData->date = date('d-m-Y');
-            $todayData->order_count = 0;
-            $todayData->total_income = 0;
-        }
 
         $withdrawData = $restaurant->balanceTransactions()
             ->where('transaction_type', 'OUT');
@@ -76,20 +66,33 @@ class RestaurantController extends Controller
             }
         }
 
-        return response()->json([
-            'total_balance' => $restaurant->bankAccount->total_balance,
-            'today_data' => new DashboardIncomeResource($todayData),
-            'income_data' => DashboardIncomeResource::collection($incomeData->get()),
-            'withdraw_data' => DashboardWithdrawResource::collection($withdrawData->get())
-        ]);
+        if ($todayData != null && $todayData->date == date('d-m-Y')) {
+            return response()->json([
+                'total_balance' => $restaurant->bankAccount->total_balance,
+                'today_data' => new DashboardIncomeResource($todayData),
+                'income_data' => DashboardIncomeResource::collection($incomeData->get()),
+                'withdraw_data' => DashboardWithdrawResource::collection($withdrawData->get())
+            ]);
+        } else {
+            return response()->json([
+                'total_balance' => $restaurant->bankAccount->total_balance,
+                'today_data' => [
+                    'date' => date('d-m-Y'),
+                    'total_order' => 0,
+                    'total_income' => 0
+                ],
+                'income_data' => DashboardIncomeResource::collection($incomeData->get()),
+                'withdraw_data' => DashboardWithdrawResource::collection($withdrawData->get())
+            ]);
+        }
     }
 
     public function update(RestaurantRequest $request, Restaurant $restaurant)
     {
         if ($request->hasFile('image')) {
-            $image_path = $this->saveImage($restaurant->id, $request->file('image'));
+            $imageLink = $this->saveImage($restaurant->id, $request->file('image'));
             $newrequest = $request->validated();
-            $newrequest['image'] = asset($image_path);
+            $newrequest['image'] = $imageLink;
         } else {
             $newrequest = $request->validated();
         }
@@ -119,24 +122,20 @@ class RestaurantController extends Controller
      */
     public function saveImage(string $restaurant_id, $image): string
     {
-        $image_directory_path = "storage/id_$restaurant_id";
-        $image_save_path = "$image_directory_path/restaurant_id_$restaurant_id.jpg";
-
-        if (!File::exists($image_directory_path)) {
-            File::makeDirectory($image_directory_path);
-        }
+        $imagePath = "id_$restaurant_id/restaurant_id_$restaurant_id.jpg";
+        $imageLink = env('FIREBASE_STORAGE_URL') . str_replace('/', '%2F', $imagePath) . '?alt=media';
 
         list($width, $height) = getimagesize($image);
         if ($width != $height) {
-            if ($width < $height) {
-                $size = $width;
-            } else {
-                $size = $height;
-            }
-            Image::make($image)->fit($size)->save($image_save_path);
+            $size = $width < $height ? $width : $height;
+            $encodedImage = Image::make($image)->fit($size)->stream('jpg');
         } else {
-            Image::make($image)->save($image_save_path);
+            $encodedImage = Image::make($image)->stream('jpg');
         }
-        return $image_save_path;
+        $bucket = app('firebase.storage')->getBucket();
+        $bucket->upload($encodedImage->__toString(), [
+            'name' => $imagePath
+        ]);
+        return $imageLink;
     }
 }
