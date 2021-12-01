@@ -16,7 +16,7 @@ class RestaurantTableSeeder extends Seeder
         $restaurant->restaurantTables()->create([
             'restaurant_id' => 1,
             'table_number' => '1',
-            'link' => 'http://localhost:8000/storage/id_1/qr_code/qr_id_1.jpg'
+            'link' => 'https://firebasestorage.googleapis.com/v0/b/bangorder-db7d2.appspot.com/o/id_1%2Fqr_code%2Fqr_id_1.jpg?alt=media'
         ]);
     }
 }
