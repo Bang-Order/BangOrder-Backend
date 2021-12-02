@@ -20,7 +20,8 @@ class CreateMenusTable extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->unsignedInteger('price');
-            $table->string('image')->default(asset('assets/default_menu.jpg'));
+//            $table->string('image')->default(asset('assets/default_menu.jpg'));
+            $table->string('image')->default('https://firebasestorage.googleapis.com/v0/b/bangorder-db7d2.appspot.com/o/assets%2Fdefault_menu.jpg?alt=media');
             $table->boolean('is_available')->default(true);
             $table->boolean('is_recommended')->default(false);
             $table->timestamps();
