@@ -29,7 +29,7 @@ Route::prefix('notify')->group(function () {
 });
 
 
-Route::get('/orders/history', 'OrderController@indexArray');
+Route::post('/orders/history', 'OrderController@indexArray');
 
 Route::get('/restaurants/{restaurant}/dashboard', 'RestaurantController@showDashboard');
 Route::post('/restaurants/{restaurant}/withdraw', 'BankAccountController@withdraw');
