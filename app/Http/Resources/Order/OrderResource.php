@@ -18,6 +18,8 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'restaurant_id' => $this->restaurant_id,
+            'restaurant_name' => $this->restaurant->name,
+            'restaurant_image' => $this->restaurant->image,
             'table_id' => $this->restaurant_table_id,
             'table_number' => $this->restaurantTable->table_number,
             'transaction_id' => $this->transaction_id,

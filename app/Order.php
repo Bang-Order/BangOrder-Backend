@@ -8,6 +8,8 @@ class Order extends Model
 {
     protected $guarded = ['id'];
 
+    protected $with = ['orderItems.menu', 'restaurant', 'restaurantTable'];
+
     public function restaurant() {
         return $this->belongsTo('App\Restaurant');
     }

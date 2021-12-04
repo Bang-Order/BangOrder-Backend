@@ -51,7 +51,7 @@ class MenuController extends Controller
             }
         }
 
-        return new MenuCollection($data->get());
+        return new MenuCollection($data->with('menuCategory')->get());
     }
 
     public function store(Restaurant $restaurant, MenuRequest $request) {

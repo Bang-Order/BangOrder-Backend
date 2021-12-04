@@ -37,8 +37,7 @@ class OrderController extends Controller
             $data = $restaurant->orders()->whereIn('order_status', ['antri', 'dimasak']);
         }
 
-        return new OrderCollection($data->with('orderItems.menu')
-            ->get());
+        return new OrderCollection($data->get());
     }
 
     public function indexAll(Restaurant $restaurant, Request $request) {
@@ -60,17 +59,13 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Start date value must lower than end date'], 422);
             }
         }
-        return new OrderCollection($data
-            ->with('orderItems.menu')
-            ->get());
+        return new OrderCollection($data->get());
     }
 
     public function indexArray(Request $request) {
         $request->validate(['order_id' => 'array']);
         $data = Order::whereIn('id', $request->order_id)->latest();
-        return new OrderCollection($data
-            ->with('orderItems.menu')
-            ->get());
+        return new OrderCollection($data->get());
     }
 
     public function store(Restaurant $restaurant, StoreOrderRequest $request)
@@ -181,7 +176,7 @@ class OrderController extends Controller
         if ($restaurant->cannot('view', [$order, $restaurant->id])) {
             return response()->json(['message' => 'This action is unauthorized.'], 401);
         }
-        return new OrderResource($order->load('orderItems.menu'));
+        return new OrderResource($order);
     }
 
     public function update(Restaurant $restaurant, Order $order, UpdateOrderRequest $request)
@@ -213,7 +208,7 @@ class OrderController extends Controller
             }
             return response()->json([
                 'message' => 'Data successfully updated',
-                'data' => new OrderResource($order->load('orderItems.menu'))
+                'data' => new OrderResource($order)
             ]);
         } else {
             return response()->json(['message' => 'Update failed'], 400);
