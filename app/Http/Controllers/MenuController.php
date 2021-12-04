@@ -16,7 +16,7 @@ use Intervention\Image\Facades\Image;
 class MenuController extends Controller
 {
     public function __construct(Storage $storage) {
-        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+        $this->middleware(['auth:sanctum', 'verified'])->only(['store', 'update', 'destroy']);
         $this->bucket = $storage->getBucket();
         $this->imageController = app('App\Http\Controllers\ImageController');
     }

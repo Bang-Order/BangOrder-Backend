@@ -20,7 +20,7 @@ use Xendit\Xendit;
 class OrderController extends Controller
 {
     public function __construct(Database $database) {
-        $this->middleware('auth:sanctum')->only(['index', 'indexAll', 'update', 'destroy']);
+        $this->middleware(['auth:sanctum', 'verified'])->only(['index', 'indexAll', 'update', 'destroy']);
         $this->database = $database;
     }
 
@@ -143,7 +143,7 @@ class OrderController extends Controller
 
                 $orderResource = new OrderResource($inserted_order->refresh()->load('orderItems.menu'));
                 //filter resource to insert it into realtime databse
-                $filteredKey  = ['id', 'table_number', 'created_at', 'order_status', 'total_price', 'order_items'];
+                $filteredKey  = ['id', 'table_number', 'created_at', 'order_status', 'total_price', 'order_items', 'invoice_url'];
                 $filteredResource = array_filter(
                     json_decode($orderResource->toJson(), true),
                     function ($key) use ($filteredKey) {

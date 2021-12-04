@@ -13,6 +13,6 @@ class RestaurantSeeder extends Seeder
     public function run()
     {
         factory(Restaurant::class, 1)->create();
-        // Restaurant::factory(3)->create();
+        Restaurant::find(1)->markEmailAsVerified();
     }
 }

@@ -13,7 +13,7 @@ use Xendit\Xendit;
 class BankAccountController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum');
+        $this->middleware(['auth:sanctum', 'verified']);
     }
 
     public function withdraw(WithdrawRequest $request, Restaurant $restaurant) {

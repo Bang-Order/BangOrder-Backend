@@ -20,12 +20,26 @@ class XenditController extends Controller
         $referencePath = "orders/$order->restaurant_id/$order->id";
         switch ($request->status) {
             case 'PAID':
-                $order->update(['order_status' => 'antri', 'invoice_url' => null]);
+                switch ($request->payment_channel) {
+                    case 'LINKAJA':
+                        $payment_method = 'LinkAja';
+                        break;
+                    case 'SHOPEEPAY':
+                        $payment_method = 'ShopeePay';
+                        break;
+                    default:
+                        $payment_method = $request->payment_channel;
+                }
+                $updates = [
+                    'order_status' => 'antri',
+                    'invoice_url' => null,
+                    'payment_method' => $payment_method
+                ];
+                $order->update($updates);
                 if ($database->getReference($referencePath)->getSnapshot()->exists()) {
                     $database
                         ->getReference($referencePath)
-                        ->getChild('order_status')
-                        ->set('antri');
+                        ->update($updates);
                 }
                 $order->restaurant->balanceTransactions()->create([
                     'transaction_type' => 'IN',

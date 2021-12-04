@@ -15,7 +15,7 @@ use Intervention\Image\Facades\Image;
 class RestaurantController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only('show', 'showDashboard', 'update');
+        $this->middleware(['auth:sanctum', 'verified'])->only('show', 'showDashboard', 'update');
     }
 
     public function index()

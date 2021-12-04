@@ -21,6 +21,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/register/account', 'AuthController@registerAccount');
     Route::post('/register/profile', 'AuthController@registerProfile');
     Route::post('/logout', 'AuthController@logout');
+    Route::get('email/verify/{id}', 'AuthController@verifyEmail')->name('verification.verify');
+    Route::post('email/resend', 'AuthController@resendEmail')->name('verification.resend');
 });
 
 Route::prefix('notify')->group(function () {
