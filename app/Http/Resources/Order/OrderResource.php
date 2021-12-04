@@ -23,6 +23,7 @@ class OrderResource extends JsonResource
             'table_id' => $this->restaurant_table_id,
             'table_number' => $this->restaurantTable->table_number,
             'transaction_id' => $this->transaction_id,
+            'payment_method' => $this->payment_method,
             'invoice_url' => $this->invoice_url,
             'order_status' => $this->order_status,
             'order_items' => OrderItemResource::collection($this->whenLoaded('orderItems')),
