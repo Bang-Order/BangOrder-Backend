@@ -21,7 +21,7 @@ use Kreait\Firebase\Storage;
 class RestaurantTableController extends Controller
 {
     public function __construct(Storage $storage) {
-        $this->middleware('auth:sanctum')->only(['index', 'store', 'update', 'destroy']);
+        $this->middleware(['auth:sanctum', 'verified'])->only(['index', 'store', 'update', 'destroy']);
         $this->bucket = $storage->getBucket();
         $this->imageController = app('App\Http\Controllers\ImageController');
     }

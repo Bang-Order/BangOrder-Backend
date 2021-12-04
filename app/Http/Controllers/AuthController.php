@@ -18,7 +18,9 @@ use Illuminate\Support\Facades\Http;
 class AuthController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only(['auth', 'logout']);
+        $this->middleware('auth:sanctum')->only(['auth', 'logout', 'resendEmail']);
+        $this->middleware('verified')->only('auth');
+        $this->middleware('throttle:6,1')->only(['verifyEmail', 'resendEmail']);
     }
 
     public function login(LoginRequest $request) {
@@ -32,6 +34,12 @@ class AuthController extends Controller
         $restaurant = Restaurant::where('email', $request->email)->firstOrFail();
         $token = $restaurant->createToken('auth_token_restaurant_id_' . $restaurant->id)->plainTextToken;
 
+        if (!$restaurant->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Account is not verified yet, please verify it first',
+                'data' => new LoginResource(['restaurant' => $restaurant, 'token' => $token])
+            ], 403);
+        }
         return response()->json([
             'message' => 'Login Success',
             'data' => new LoginResource(['restaurant' => $restaurant, 'token' => $token])
@@ -65,6 +73,7 @@ class AuthController extends Controller
         }
 
         $token = $registered_data->createToken('auth_token_restaurant_id_' . $restaurant_id)->plainTextToken;
+        $registered_data->sendEmailVerificationNotification();
 
 //        for ($i = 1; $i <= $request->table_amount; $i++) {
 //            $table_request = ['table_number' => $i, 'link' => time()];
@@ -97,5 +106,33 @@ class AuthController extends Controller
         } else {
             return response()->json(['message' => 'Delete failed'], 400);
         }
+    }
+
+    public function verifyEmail($user_id, Request $request) {
+        auth()->loginUsingId($user_id);
+        $restaurant = $request->user();
+
+        if (!$request->hasValidSignature()) {
+            //redirect to failed verify page
+            return response()->json(['message' => 'Email verification URL is invalid or expired'], 404);
+        }
+
+        if (!$restaurant->hasVerifiedEmail()) {
+            $restaurant->markEmailAsVerified();
+        }
+
+        //redirect to success verify page
+        return response()->json(['message' => 'Email verified successfully']);
+//        return redirect('https://www.google.com');
+    }
+
+    public function resendEmail(Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email has already verified'], 400);
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Email verification link has been resend']);
     }
 }

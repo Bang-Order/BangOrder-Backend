@@ -2,11 +2,12 @@
 
 namespace App;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Restaurant extends Authenticatable
+class Restaurant extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, Notifiable;
 

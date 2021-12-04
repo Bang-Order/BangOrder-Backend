@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 class MenuCategoryController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+        $this->middleware(['auth:sanctum', 'verified'])->only(['store', 'update', 'destroy']);
     }
 
     public function index(Restaurant $restaurant) {
