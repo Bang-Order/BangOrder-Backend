@@ -106,7 +106,7 @@ class MenuController extends Controller
             }
         }
 
-        if ($request->is_recommended == 1 || $request->is_recommended == true) {
+        if (($request->is_recommended == 1 || $request->is_recommended == true) && $menu->is_recommended != 1) {
             $count = $restaurant->menus()->where('is_recommended', 1)->count();
             if ($count >= 4) {
                 return response()->json([
