@@ -24,6 +24,6 @@ $factory->define(Menu::class, function (Faker $faker) {
 //        'image'=> $faker->imageUrl(500, 500, 'food'),
         'image' => 'https://picsum.photos/250?image=' . rand(25, 200),
         'is_available' => $faker->boolean(),
-        'is_recommended' => $faker->boolean(10)
+        'is_recommended' => $faker->boolean(5)
     ];
 });

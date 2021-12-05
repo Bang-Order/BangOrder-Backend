@@ -62,6 +62,15 @@ class MenuController extends Controller
             );
         }
 
+        if ($request->is_recommended == 1 || $request->is_recommended == true) {
+            $count = $restaurant->menus()->where('is_recommended', 1)->count();
+            if ($count >= 4) {
+                return response()->json([
+                    'message' => 'Menu rekomendasi hanya boleh memiliki maksimal 4 menu'], 422
+                );
+            }
+        }
+
         $inserted_data = $restaurant->menus()->create($request->except('image'));
 
         if (empty($inserted_data)) {
@@ -93,6 +102,15 @@ class MenuController extends Controller
             if (!$menu_category) {
                 return response()->json([
                     'message' => 'Menu Category ID is invalid'], 404
+                );
+            }
+        }
+
+        if ($request->is_recommended == 1 || $request->is_recommended == true) {
+            $count = $restaurant->menus()->where('is_recommended', 1)->count();
+            if ($count >= 4) {
+                return response()->json([
+                    'message' => 'Menu rekomendasi hanya boleh memiliki maksimal 4 menu'], 422
                 );
             }
         }
