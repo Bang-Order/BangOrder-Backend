@@ -5,22 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterAccountRequest;
 use App\Http\Requests\Auth\RegisterProfileRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\Auth\LoginResource;
 use App\Http\Resources\Auth\RegisterResource;
 use App\Http\Resources\Restaurant\RestaurantResource;
 use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
     public function __construct() {
         $this->middleware('auth:sanctum')->only(['auth', 'logout', 'resendEmail']);
         $this->middleware('verified')->only('auth');
-        $this->middleware('throttle:6,1')->only(['verifyEmail', 'resendEmail']);
+        $this->middleware('throttle:6,1')->only(['verifyEmail', 'resendEmail', 'sendForgotPassword']);
     }
 
     public function login(LoginRequest $request) {
@@ -114,7 +114,7 @@ class AuthController extends Controller
 
         if (!$request->hasValidSignature()) {
             //redirect to failed verify page
-            return response()->json(['message' => 'URL Email verifikasitidak valid atau sudah kadaluarsa'], 404);
+            return response()->json(['message' => 'URL Email verifikasi tidak valid atau sudah kadaluarsa'], 404);
         }
 
         if (!$restaurant->hasVerifiedEmail()) {
@@ -134,5 +134,22 @@ class AuthController extends Controller
         $request->user()->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Link Email verifikasi telah berhasil dikirim ulang']);
+    }
+
+    public function sendResetPassword(Request $request) {
+        Password::sendResetLink($request->validate(['email' => ['required', 'email', 'exists:App\Restaurant,email']]));
+        return response()->json(['message' => 'Link reset password telah berhasil dikirim via Email']);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request) {
+        $email_password_status = Password::reset($request->validated(), function ($restaurant, $password) {
+            $restaurant->password = Hash::make($password);
+            $restaurant->save();
+        });
+
+        if ($email_password_status == Password::INVALID_TOKEN) {
+            return response()->json(['message' => 'URL Password Reset tidak valid atau sudah kadaluarsa'], 404);
+        }
+        return response()->json(['message' => 'Reset password berhasil']);
     }
 }

@@ -97,6 +97,7 @@ return [
     'not_regex'            => 'Format :attribute tidak valid.',
     'numeric'              => ':Attribute harus berupa angka.',
     'password'             => 'Kata sandi salah.',
+    'password-validation'  => 'Kata sandi salah.',
     'phone'                => ':attribute berisi nomor yang tidak valid.',
     'present'              => ':Attribute wajib ada.',
     'prohibited'           => ':Attribute tidak boleh ada.',

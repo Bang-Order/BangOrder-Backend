@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Restaurant\ChangePasswordRequest;
 use App\Http\Requests\Restaurant\RestaurantRequest;
 use App\Http\Resources\Restaurant\DashboardIncomeResource;
 use App\Http\Resources\Restaurant\DashboardWithdrawResource;
@@ -10,12 +11,13 @@ use App\Restaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Intervention\Image\Facades\Image;
 
 class RestaurantController extends Controller
 {
     public function __construct() {
-        $this->middleware(['auth:sanctum', 'verified'])->only('show', 'showDashboard', 'update');
+        $this->middleware(['auth:sanctum', 'verified'])->only('show', 'showDashboard', 'update', 'changePassword');
     }
 
     public function index()
@@ -116,5 +118,13 @@ class RestaurantController extends Controller
     public function destroy(Restaurant $restaurant)
     {
         return response()->json(['message' => 'There are no DELETE method in RestaurantController'], 405);
+    }
+
+    public function changePassword(Restaurant $restaurant, ChangePasswordRequest $request) {
+        if (!Hash::check($request->old_password, $restaurant->password)) {
+            return response()->json(['message' => 'Password lama tidak sesuai']);
+        }
+        $restaurant->update(['password' => Hash::make($request->new_password)]);
+        return response()->json(['message' => 'Sukses mengganti password']);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Notifications\CustomResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -21,9 +22,9 @@ class Restaurant extends Authenticatable implements MustVerifyEmail
 
     protected $guarded = ['id'];
 
-    public function getPassword()
+    public function sendPasswordResetNotification($token)
     {
-        return $this->password;
+        $this->notify(new CustomResetPassword($token));
     }
 
     public function menus()
