@@ -20,7 +20,7 @@ class AuthController extends Controller
     public function __construct() {
         $this->middleware('auth:sanctum')->only(['auth', 'logout', 'resendEmail']);
         $this->middleware('verified')->only('auth');
-        $this->middleware('throttle:6,1')->only(['verifyEmail', 'resendEmail', 'sendForgotPassword']);
+        $this->middleware('throttle:6,1')->only(['verifyEmail', 'resendEmail', 'sendResetPassword']);
     }
 
     public function login(LoginRequest $request) {
