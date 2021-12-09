@@ -114,7 +114,8 @@ class AuthController extends Controller
 
         if (!$request->hasValidSignature()) {
             //redirect to failed verify page
-            return response()->json(['message' => 'URL Email verifikasitidak valid atau sudah kadaluarsa'], 404);
+            return redirect(env('FRONTEND_URL', 'https://www.google.com') . '/verifikasi-kadaluarsa');
+            //return response()->json(['message' => 'URL Email verifikasitidak valid atau sudah kadaluarsa'], 404);
         }
 
         if (!$restaurant->hasVerifiedEmail()) {
@@ -122,8 +123,8 @@ class AuthController extends Controller
         }
 
         //redirect to success verify page
-        return response()->json(['message' => 'Email sukses terverifikasi']);
-//        return redirect('https://www.google.com');
+        return redirect(env('FRONTEND_URL', 'https://www.google.com') . '/verifikasi-sukses');
+//        return response()->json(['message' => 'Email sukses terverifikasi']);
     }
 
     public function resendEmail(Request $request) {
