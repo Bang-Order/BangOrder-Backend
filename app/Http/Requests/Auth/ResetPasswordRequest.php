@@ -4,7 +4,7 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class ResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,9 @@ class LoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:App\Restaurant,email'],
-            'password' => ['required', 'string', 'min:8']
+            'password' => ['required', 'string', 'min:8'],
+            'confirm_password' => ['required', 'string', 'min:8', 'same:password'],
+            'token' => ['required', 'string']
         ];
     }
 }
