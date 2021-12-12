@@ -162,8 +162,8 @@ class RestaurantTableController extends Controller
     }
 
     /**
-     * @param string $restaurant
-     * @param string $table
+     * @param string $restaurant_id
+     * @param string $table_id
      * @return mixed
      */
     private function generateDynamicLink(string $restaurant_id, string $table_id): string
@@ -173,7 +173,7 @@ class RestaurantTableController extends Controller
             $url = "https://www.google.com?restaurant_id=$restaurant_id&table_id=$table_id";
             $action = CreateDynamicLink::forUrl($url)
                 ->withDynamicLinkDomain('https://bangorder.page.link')
-                ->withAndroidInfo(AndroidInfo::new()->withPackageName('com.example.bangorder_mobile'))
+                ->withAndroidInfo(AndroidInfo::new()->withPackageName('com.bangorder.mobile'))
                 ->withNavigationInfo(NavigationInfo::new()->withForcedRedirect());
             $link = $dynamicLinks->createDynamicLink($action);
         } catch (FailedToCreateDynamicLink $e) {
