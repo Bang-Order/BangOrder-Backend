@@ -29,7 +29,7 @@ class RestaurantTableController extends Controller
     public function index(Request $request, Restaurant $restaurant)
     {
         if ($request->user()->cannot('viewAny', [RestaurantTable::class, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         return new RestaurantTableCollection($restaurant->restaurantTables()->get());
     }
@@ -40,14 +40,14 @@ class RestaurantTableController extends Controller
         $inserted_data = $restaurant->restaurantTables()->create($request->all());
 
         if (empty($inserted_data)) {
-            return response()->json(['message' => 'Insert failed'], 400);
+            return response()->json(['message' => 'Gagal menambah data'], 400);
         } else {
             $stickerSaveLink = $this->generateQrSticker($restaurant, $inserted_data);
 
             $inserted_data->update(['link' => $stickerSaveLink]);
 
             return response()->json([
-                'message' => 'Data successfully added',
+                'message' => 'Data berhasil ditambah',
                 'data' => new RestaurantTableResource($inserted_data)
             ], 201);
         }
@@ -57,7 +57,7 @@ class RestaurantTableController extends Controller
     public function show(Restaurant $restaurant, RestaurantTable $table)
     {
         if ($restaurant->cannot('view', [$table, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
 
         return response()->json([
@@ -72,7 +72,7 @@ class RestaurantTableController extends Controller
 
     public function getQRCode(Restaurant $restaurant, RestaurantTable $table) {
         if ($restaurant->cannot('view', [$table, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         $table_id = $table->id;
         $link = $table->link;
@@ -96,27 +96,27 @@ class RestaurantTableController extends Controller
             $this->imageController->uploadImage($encodedImage, $imagePath);
 
             return response()->json([
-                'message' => 'Data successfully updated',
+                'message' => 'Data berhawsil diupdate',
                 'data' => new RestaurantTableResource($table)
             ]);
 
         } else {
-            return response()->json(['message' => 'Update failed'], 400);
+            return response()->json(['message' => 'Gagal mengupdate data'], 400);
         }
     }
 
     public function destroy(Restaurant $restaurant, RestaurantTable $table)
     {
         if ($restaurant->cannot('delete', [$table, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         $deleted_data = $table->delete();
         if ($deleted_data) {
             $imagePath = "id_$restaurant->id/qr_code/qr_id_$table->id.jpg";
             $this->imageController->deleteImage($imagePath);
-            return response()->json(['message' => 'Data successfully deleted']);
+            return response()->json(['message' => 'Data berhasil dihapus']);
         } else {
-            return response()->json(['message' => 'Delete failed'], 400);
+            return response()->json(['message' => 'Gagal menghapus data'], 400);
         }
     }
 

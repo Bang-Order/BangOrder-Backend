@@ -3,6 +3,7 @@
 namespace App\Http\Requests\BankAccount;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Gate;
 
 class WithdrawRequest extends FormRequest
@@ -15,6 +16,11 @@ class WithdrawRequest extends FormRequest
     public function authorize()
     {
         return Gate::allows('restaurant-auth', $this->restaurant);
+    }
+
+    public function failedAuthorization()
+    {
+        throw new HttpResponseException(response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401));
     }
 
     /**

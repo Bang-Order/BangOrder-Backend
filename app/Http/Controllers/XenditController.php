@@ -47,7 +47,7 @@ class XenditController extends Controller
                 ]);
                 $bankAccount = $order->restaurant->bankAccount;
                 $bankAccount->update(['total_balance' => $bankAccount->total_balance + $request->paid_amount]);
-                return response()->json(['message' => 'Success: Order has been paid']);
+                return response()->json(['message' => 'Sukses: Pesanan telah dibayar']);
             default:
                 $order->delete();
                 if ($database->getReference($referencePath)->getSnapshot()->exists()) {
@@ -55,7 +55,7 @@ class XenditController extends Controller
                         ->getReference($referencePath)
                         ->remove();
                 }
-                return response()->json(['message' => 'Timeout: Order has been expired and deleted'], 408);
+                return response()->json(['message' => 'Timeout: Pesanan sudah dihapus atau kadaluarsa'], 408);
         }
     }
 
@@ -71,10 +71,10 @@ class XenditController extends Controller
                 ]);
                 $bankAccount = $restaurant->bankAccount;
                 $bankAccount->update(['total_balance' => $bankAccount->total_balance - $amount]);
-                return response()->json(['message' => 'Success: Withdrawal has been successfully transfered']);
+                return response()->json(['message' => 'Sukses: Penarikan dana berhasil ditransfer']);
             default:
                 return response()->json([
-                    'message' =>  'Failed: Withdrawal process is failed',
+                    'message' =>  'Failed: Proses penarikan dana gagal',
                     'error_code' => $request->failure_code
                 ], 400);
         }
