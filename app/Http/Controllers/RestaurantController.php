@@ -33,14 +33,14 @@ class RestaurantController extends Controller
     public function show(Request $request, Restaurant $restaurant)
     {
         if (Gate::denies('restaurant-auth', $restaurant)) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         return new RestaurantResource($restaurant->load('bankAccount'));
     }
 
     public function showDashboard(Request $request, Restaurant $restaurant) {
         if (Gate::denies('restaurant-auth', $restaurant)) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
 
         $incomeData = $restaurant->balanceTransactions()
@@ -64,7 +64,7 @@ class RestaurantController extends Controller
                 $withdrawData = $withdrawData->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
             }
             else {
-                return response()->json(['message' => 'Start date value must lower than end date'], 422);
+                return response()->json(['message' => 'Tanggal mulai harus lebih rendah daripada tanggal akhir'], 422);
             }
         }
 
@@ -107,11 +107,11 @@ class RestaurantController extends Controller
 
         if ($updatedData) {
             return response()->json([
-                'message' => 'Data successfully updated',
+                'message' => 'Data berhasil diupdate',
                 'data' => new RestaurantResource($restaurant->load('bankAccount'))
             ]);
         } else {
-            return response()->json(['message' => 'Update failed'], 400);
+            return response()->json(['message' => 'Gagal mengupdate data'], 400);
         }
     }
 

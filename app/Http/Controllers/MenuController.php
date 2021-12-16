@@ -26,7 +26,7 @@ class MenuController extends Controller
             $menuCategory = $restaurant->menuCategories()->find($request->menu_category_id);
             if (!$menuCategory) {
                 return response()->json([
-                    'message' => 'Menu Category ID is invalid'], 404
+                    'message' => 'ID Menu Kategori tidak valid'], 404
                 );
             }
             $data = $menuCategory->menus();
@@ -58,7 +58,7 @@ class MenuController extends Controller
         $menu_category = $restaurant->menuCategories()->find($request->menu_category_id);
         if ($request->menu_category_id && !$menu_category) {
             return response()->json([
-                'message' => 'Menu Category ID is invalid'], 404
+                'message' => 'ID Menu Kategori tidak valid'], 404
             );
         }
 
@@ -74,7 +74,7 @@ class MenuController extends Controller
         $inserted_data = $restaurant->menus()->create($request->except('image'));
 
         if (empty($inserted_data)) {
-            return response()->json(['message' => 'Insert failed'], 400);
+            return response()->json(['message' => 'Gagal menambah data'], 400);
         } else {
             if ($request->hasFile('image')) {
                 $imagePath = "id_$restaurant->id/menu/menu_id_$inserted_data->id.jpg";
@@ -83,7 +83,7 @@ class MenuController extends Controller
                 $inserted_data->update(['image' => $imageLink]);
             }
             return response()->json([
-                'message' => 'Data successfully added',
+                'message' => 'Data berhasil ditambahkan',
                 'data' => new MenuResource($inserted_data->refresh())
             ], 201);
         }
@@ -91,7 +91,7 @@ class MenuController extends Controller
 
     public function show(Restaurant $restaurant, Menu $menu) {
         if ($restaurant->cannot('view', [$menu, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         return new MenuResource($menu);
     }
@@ -101,7 +101,7 @@ class MenuController extends Controller
             $menu_category = $restaurant->menuCategories()->find($request->menu_category_id);
             if (!$menu_category) {
                 return response()->json([
-                    'message' => 'Menu Category ID is invalid'], 404
+                    'message' => 'ID Menu Kategori tidak valid'], 404
                 );
             }
         }
@@ -125,23 +125,23 @@ class MenuController extends Controller
 
         $updated_data = $menu->update($newrequest);
         if ($updated_data) {
-            return response()->json(['message' => 'Data successfully updated', 'data' => $menu]);
+            return response()->json(['message' => 'Data berhasil diupdate', 'data' => $menu]);
         } else {
-            return response()->json(['message' => 'Update failed'], 400);
+            return response()->json(['message' => 'Gagal mengupdate data'], 400);
         }
     }
 
     public function destroy(Restaurant $restaurant, Menu $menu){
         if ($restaurant->cannot('delete', [$menu, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         $deleted_data = $menu->delete();
         if ($deleted_data) {
             $imagePath = "id_$restaurant->id/menu/menu_id_$menu->id.jpg";
             $this->imageController->deleteImage($imagePath);
-            return response()->json(['message' => 'Data successfully deleted']);
+            return response()->json(['message' => 'Data berhasil dihapus']);
         } else {
-            return response()->json(['message' => 'Delete failed'], 400);
+            return response()->json(['message' => 'Gagal menghapus data'], 400);
         }
     }
 }

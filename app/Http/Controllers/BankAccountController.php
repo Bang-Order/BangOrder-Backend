@@ -20,7 +20,7 @@ class BankAccountController extends Controller
         $bankAccount = $restaurant->bankAccount;
         if ($bankAccount->total_balance + BankAccount::ADMIN_CHARGE < $request->amount) {
             return response()->json([
-                'message' => 'The given data was invalid.',
+                'message' => 'Data yang diinputkan tidak valid',
                 'errors' => [
                     'amount' => 'Jumlah dana yang ingin ditarik melebihi saldo Anda'
                 ]],422);
@@ -41,7 +41,7 @@ class BankAccountController extends Controller
             ];
             $createDisbursement = Disbursements::create($params);
             return response()->json([
-                'message' => 'Created Disbursement Withdraw Request Successfully',
+                'message' => 'Pembuatan request tarik dana berhasil',
                 'disbursement_data' => $createDisbursement
             ]);
         } catch (Exception $e) {

@@ -28,7 +28,7 @@ class MenuCategoryRequest extends FormRequest
 
     public function failedAuthorization()
     {
-        throw new HttpResponseException(response()->json(['message' => 'This action is unauthorized.'], 401));
+        throw new HttpResponseException(response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401));
     }
 
     /**

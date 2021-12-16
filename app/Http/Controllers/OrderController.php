@@ -27,7 +27,7 @@ class OrderController extends Controller
     public function index(Request $request, Restaurant $restaurant)
     {
         if ($request->user()->cannot('viewAny', [Order::class, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
 
         if ($request->status) {
@@ -42,7 +42,7 @@ class OrderController extends Controller
 
     public function indexAll(Restaurant $restaurant, Request $request) {
         if ($request->user()->cannot('viewAny', [Order::class, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
 
         $data = $restaurant->orders()->where('order_status', '<>', 'payment_pending');
@@ -56,7 +56,7 @@ class OrderController extends Controller
                 $data = $data->whereBetween('created_at', [$start_date.' 00:00:00', $end_date.' 23:59:59']);
             }
             else {
-                return response()->json(['message' => 'Start date value must lower than end date'], 422);
+                return response()->json(['message' => 'Tanggal mulai harus lebih rendah daripada tanggal akhir'], 422);
             }
         }
         return new OrderCollection($data->get());
@@ -73,7 +73,7 @@ class OrderController extends Controller
         $restaurantTable = $restaurant->restaurantTables()->find($request->restaurant_table_id);
         if (!$restaurantTable) {
             return response()->json([
-                'message' => 'Restaurant Table ID is invalid'
+                'message' => 'ID Meja Restoran tidak valid'
             ], 404);
         }
 
@@ -81,7 +81,7 @@ class OrderController extends Controller
         $inserted_order = $restaurant->orders()->create($request->all());
 
         if (empty($inserted_order)) {
-            return response()->json(['message' => 'Insert Order failed'], 400);
+            return response()->json(['message' => 'Gagal menambah data'], 400);
         } else {
             //insert each of order items
             $sync_data = [];
@@ -95,7 +95,7 @@ class OrderController extends Controller
                 if ($validator->fails()) {
                     $inserted_order->delete();
                     return response()->json([
-                        'message' => 'The given data was invalid.',
+                        'message' => 'Data yang diinputkan tidak valid',
                         'errors' => $validator->errors()
                     ], 422);
                 }
@@ -103,7 +103,7 @@ class OrderController extends Controller
                 $menu = $restaurant->menus()->find($item['menu_id']); //might want to optimize this later to avoid repetitive query call
                 if (!$menu) {
                     $inserted_order->delete();
-                    return response()->json(['message' => 'Restaurant ID and Menu Foreign Key does not match'], 404);
+                    return response()->json(['message' => 'ID Restoran dan Menu tidak sesuai'], 404);
                 }
 
                 $sync_data[$item['menu_id']] = [
@@ -120,7 +120,7 @@ class OrderController extends Controller
             $inserted_item = $inserted_order->menus()->sync($sync_data);
             if (empty($inserted_item['attached'])) {
                 $inserted_order->delete();
-                return response()->json(['message' => 'Insert OrderItem failed'], 400);
+                return response()->json(['message' => 'Gagal menambahkan Order Item'], 400);
             } else {
                 // Create xendit invoice charge
                 try {
@@ -164,7 +164,7 @@ class OrderController extends Controller
                 }
 
                 return response()->json([
-                    'message' => 'Data successfully created',
+                    'message' => 'Data berhasil dibuat',
                     'data' => $orderResource
                 ], 201);
             }
@@ -174,7 +174,7 @@ class OrderController extends Controller
     public function show(Restaurant $restaurant, Order $order)
     {
         if ($restaurant->cannot('view', [$order, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         return new OrderResource($order);
     }
@@ -207,18 +207,18 @@ class OrderController extends Controller
                     $e->getCode());
             }
             return response()->json([
-                'message' => 'Data successfully updated',
+                'message' => 'Data berhasil diupdate',
                 'data' => new OrderResource($order)
             ]);
         } else {
-            return response()->json(['message' => 'Update failed'], 400);
+            return response()->json(['message' => 'Gagal mengupdate data'], 400);
         }
     }
 
     public function destroy(Restaurant $restaurant, Order $order)
     {
         if ($restaurant->cannot('delete', [$order, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         $deleted_data = $order->delete();
         if ($deleted_data) {
@@ -234,9 +234,9 @@ class OrderController extends Controller
                 return response()->json(['message' => 'Firebase Realtime Database error: ' . $e->getMessage()],
                     $e->getCode());
             }
-            return response()->json(['message' => 'Data successfully deleted']);
+            return response()->json(['message' => 'Data berhasil dihapus']);
         } else {
-            return response()->json(['message' => 'Delete failed'], 400);
+            return response()->json(['message' => 'Gagal menghapus data'], 400);
         }
     }
 }

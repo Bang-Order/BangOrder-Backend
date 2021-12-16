@@ -28,10 +28,10 @@ class MenuCategoryController extends Controller
     public function store(Restaurant $restaurant, MenuCategoryRequest $request) {
         $inserted_data = $restaurant->menuCategories()->create($request->validated());
         if (empty($inserted_data)) {
-            return response()->json(['message' => 'Insert failed'], 400);
+            return response()->json(['message' => 'Gagal menambah data'], 400);
         } else {
             return response()->json([
-                'message' => 'Data successfully added',
+                'message' => 'Data berhasil ditambahkan',
                 'data' => new MenuCategoryResource($inserted_data)
             ], 201);
         }
@@ -39,7 +39,7 @@ class MenuCategoryController extends Controller
 
     public function show(Restaurant $restaurant, MenuCategory $menu_category) {
         if ($restaurant->cannot('view', [$menu_category, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
         return new MenuCategoryResource($menu_category);
     }
@@ -48,24 +48,24 @@ class MenuCategoryController extends Controller
         $updated_data = $menu_category->update($request->validated());
         if ($updated_data) {
             return response()->json([
-                'message' => 'Data successfully updated',
+                'message' => 'Data berhasil diupdate',
                 'data' => new MenuCategoryResource($menu_category)
             ]);
         } else {
-            return response()->json(['message' => 'Update failed'], 400);
+            return response()->json(['message' => 'Gagal mengupdate data'], 400);
         }
     }
 
     public function destroy(Restaurant $restaurant, MenuCategory $menu_category) {
         if ($restaurant->cannot('delete', [$menu_category, $restaurant->id])) {
-            return response()->json(['message' => 'This action is unauthorized.'], 401);
+            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
         }
 
         $deleted_data = $menu_category->delete();
         if ($deleted_data) {
-            return response()->json(['message' => 'Data successfully deleted']);
+            return response()->json(['message' => 'Data berhasil dihapus']);
         } else {
-            return response()->json(['message' => 'Delete failed'], 400);
+            return response()->json(['message' => 'Gagal menghapus data'], 400);
         }
     }
 }

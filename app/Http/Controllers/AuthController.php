@@ -27,7 +27,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         if (!Auth::attempt($credentials)) {
             return response()->json([
-                'message' => 'Invalid login details'
+                'message' => 'Email atau password salah, silahkan coba lagi'
             ], 401);
         }
 
@@ -36,19 +36,19 @@ class AuthController extends Controller
 
         if (!$restaurant->hasVerifiedEmail()) {
             return response()->json([
-                'message' => 'Account is not verified yet, please verify it first',
+                'message' => 'Akun Anda masih belum terverifikasi, silahkan melakukan verifikasi email terlebih dahulu dan coba lagi',
                 'data' => new LoginResource(['restaurant' => $restaurant, 'token' => $token])
             ], 403);
         }
         return response()->json([
-            'message' => 'Login Success',
+            'message' => 'Login berhasil',
             'data' => new LoginResource(['restaurant' => $restaurant, 'token' => $token])
         ]);
     }
 
     public function registerAccount(RegisterAccountRequest $request) {
         return response()->json([
-            'message' => 'Account is Available',
+            'message' => 'Akun tersedia',
             'data' => [
                 'email' => $request->email,
                 'password' => Hash::make($request->password)
@@ -59,7 +59,7 @@ class AuthController extends Controller
     public function registerProfile(RegisterProfileRequest $request) {
         $registered_data = Restaurant::create($request->except(['image']));
         if (empty($registered_data)) {
-            return response()->json(['message' => 'Register failed'], 400);
+            return response()->json(['message' => 'Register gagal'], 400);
         }
         $restaurant_id = $registered_data->id;
         $registered_data->bankAccount()->create($request->only(['bank_name', 'account_holder_name', 'account_number']));
@@ -87,14 +87,14 @@ class AuthController extends Controller
 //        }
 
         return response()->json([
-            'message' => 'Register Success',
+            'message' => 'Register berhasil',
             'data' => new RegisterResource(['restaurant' => $registered_data->refresh()->load('bankAccount'), 'token' => $token])
         ], 201);
     }
 
     public function auth(Request $request) {
         return response()->json([
-            'message' => 'Authentication Success',
+            'message' => 'Autentikasi berhasil',
             'data' => new RestaurantResource($request->user())
         ]);
     }
@@ -102,9 +102,9 @@ class AuthController extends Controller
     public function logout(Request $request) {
         $deleted_token = $request->user()->currentAccessToken()->delete();
         if ($deleted_token) {
-            return response()->json(['message' => 'Logout Success']);
+            return response()->json(['message' => 'Logout berhasil']);
         } else {
-            return response()->json(['message' => 'Delete failed'], 400);
+            return response()->json(['message' => 'Gagal menghapus token'], 400);
         }
     }
 
@@ -115,7 +115,6 @@ class AuthController extends Controller
         if (!$request->hasValidSignature()) {
             //redirect to failed verify page
             return redirect(env('FRONTEND_URL', 'https://www.google.com') . '/verifikasi-kadaluarsa');
-            //return response()->json(['message' => 'URL Email verifikasitidak valid atau sudah kadaluarsa'], 404);
         }
 
         if (!$restaurant->hasVerifiedEmail()) {
@@ -124,7 +123,6 @@ class AuthController extends Controller
 
         //redirect to success verify page
         return redirect(env('FRONTEND_URL', 'https://www.google.com') . '/verifikasi-sukses');
-//        return response()->json(['message' => 'Email sukses terverifikasi']);
     }
 
     public function resendEmail(Request $request) {
