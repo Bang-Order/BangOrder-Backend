@@ -122,7 +122,7 @@ class RestaurantController extends Controller
 
     public function changePassword(Restaurant $restaurant, ChangePasswordRequest $request) {
         if (!Hash::check($request->old_password, $restaurant->password)) {
-            return response()->json(['message' => 'Password lama tidak sesuai']);
+            return response()->json(['message' => 'Password lama tidak sesuai'], 422);
         }
         $restaurant->update(['password' => Hash::make($request->new_password)]);
         return response()->json(['message' => 'Sukses mengganti password']);
