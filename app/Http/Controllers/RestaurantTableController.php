@@ -71,14 +71,14 @@ class RestaurantTableController extends Controller
     }
 
     public function getQRCode(Restaurant $restaurant, RestaurantTable $table) {
-        if ($restaurant->cannot('view', [$table, $restaurant->id])) {
-            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
-        }
-        $table_id = $table->id;
+//        if ($restaurant->cannot('view', [$table, $restaurant->id])) {
+//            return response()->json(['message' => 'Anda tidak diizinkan untuk melakukan aksi ini'], 401);
+//        }
+        $table_number = $table->table_number;
         $link = $table->link;
         return response()->streamDownload(function () use ($link) {
             echo readfile($link);
-        }, "qr_id_$table_id.jpg");
+        }, "Meja $table_number.jpg");
     }
 
     public function update(RestaurantTableRequest $request, Restaurant $restaurant, RestaurantTable $table)
@@ -96,7 +96,7 @@ class RestaurantTableController extends Controller
             $this->imageController->uploadImage($encodedImage, $imagePath);
 
             return response()->json([
-                'message' => 'Data berhawsil diupdate',
+                'message' => 'Data berhasil diupdate',
                 'data' => new RestaurantTableResource($table)
             ]);
 

@@ -37,7 +37,7 @@ class BankAccountController extends Controller
                 'account_number' => $bankAccount->account_number,
                 'description' => "Penarikan dana oleh $restaurant->name menuju rekening a.n $bankAccount->account_holder_name via Bang Order",
                 'email_to' => [$restaurant->email],
-                'email_cc' => env('MAIL_FROM_ADDRESS')
+                'email_cc' => [env('MAIL_FROM_ADDRESS')]
             ];
             $createDisbursement = Disbursements::create($params);
             return response()->json([
