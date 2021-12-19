@@ -3,7 +3,8 @@
 @slot('header')
 @component('mail::header', ['url' => env('FRONTEND_URL')])
 {{--{{ config('app.name') }}--}}
-<img src="{{asset('assets/BangOrder_logo.png')}}" alt="{{config('app.name')}}">
+{{--<img src="{{asset('assets/BangOrder_logo.png')}}" alt="{{config('app.name')}}">--}}
+<img src="https://firebasestorage.googleapis.com/v0/b/bangorder-db7d2.appspot.com/o/assets%2FBangOrder_logo.png?alt=media" alt="{{config('app.name')}}">
 @endcomponent
 @endslot
 
