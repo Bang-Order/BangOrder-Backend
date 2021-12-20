@@ -123,6 +123,10 @@ class MenuController extends Controller
             $newrequest['image'] = $imageLink;
         }
 
+        if ($newrequest['description'] == null) {
+            $newrequest['description'] = '';
+        }
+
         $updated_data = $menu->update($newrequest);
         if ($updated_data) {
             return response()->json(['message' => 'Data berhasil diupdate', 'data' => $menu]);

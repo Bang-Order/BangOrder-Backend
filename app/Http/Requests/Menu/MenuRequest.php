@@ -39,7 +39,7 @@ class MenuRequest extends FormRequest
         return [
             'name' => ['sometimes', 'required', 'string'],
             'menu_category_id' => ['integer', 'exists:App\MenuCategory,id'],
-            'description' => ['string'],
+            'description' => ['string', 'nullable'],
             'price' => ['sometimes', 'required', 'integer', 'gte:100'],
             'image' => ['mimes:jpg,jpeg,png', 'file', 'max:1024'],
             'is_available' => ['boolean'],
