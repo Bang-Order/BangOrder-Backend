@@ -17,7 +17,7 @@ class DashboardIncomeResource extends JsonResource
         return [
             'date' => $this->date,
             'total_order' => $this->order_count,
-            'total_income' => $this->total_income
+            'total_income' => (int)$this->total_income
         ];
     }
 }
