@@ -123,10 +123,6 @@ class MenuController extends Controller
             $newrequest['image'] = $imageLink;
         }
 
-//        if ($newrequest['description'] == null) {
-//            $newrequest['description'] = '';
-//        }
-
         if ($request->description == null) {
             $newrequest['description'] = '';
         }
