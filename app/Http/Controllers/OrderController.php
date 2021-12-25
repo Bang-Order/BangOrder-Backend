@@ -107,7 +107,9 @@ class OrderController extends Controller
                 }
 
                 $sync_data[$item['menu_id']] = [
+                    'menu_name' => $menu->name,
                     'quantity' => $item['quantity'],
+                    'sum_price' => $menu->price * $item['quantity'],
                     'notes' => array_key_exists('notes', $item) ? $item['notes'] : null
                 ];
                 $items[] = json_encode([

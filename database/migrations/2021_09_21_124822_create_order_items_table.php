@@ -16,7 +16,9 @@ class CreateOrderItemsTable extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('menu_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('menu_name');
             $table->unsignedInteger('quantity');
+            $table->unsignedInteger('sum_price');
             $table->text('notes')->nullable();
         });
     }

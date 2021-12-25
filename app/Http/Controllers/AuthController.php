@@ -72,8 +72,14 @@ class AuthController extends Controller
             $registered_data->update(['image' => $imageLink]);
         }
 
+        try {
+            $registered_data->sendEmailVerificationNotification();
+        } catch (\Exception $e) {
+            $registered_data->delete();
+            return response()->json(['message' => 'Pengiriman Email Gagal'], 404);
+        }
+
         $token = $registered_data->createToken('auth_token_restaurant_id_' . $restaurant_id)->plainTextToken;
-        $registered_data->sendEmailVerificationNotification();
 
 //        for ($i = 1; $i <= $request->table_amount; $i++) {
 //            $table_request = ['table_number' => $i, 'link' => time()];
