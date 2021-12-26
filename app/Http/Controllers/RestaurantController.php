@@ -48,7 +48,11 @@ class RestaurantController extends Controller
             ->where('transaction_type', 'IN')
             ->groupBy('date');
 
-        $todayData = with(clone $incomeData)->first();
+        $thisMonthData = $restaurant->balanceTransactions()
+            ->selectRaw("DATE_FORMAT(created_at, '%m-%Y') date, count(*) order_count, sum(amount) total_income")
+            ->where('transaction_type', 'IN')
+            ->groupBy('date')
+            ->first();
 
         $withdrawData = $restaurant->balanceTransactions()
             ->where('transaction_type', 'OUT');
@@ -68,18 +72,18 @@ class RestaurantController extends Controller
             }
         }
 
-        if ($todayData != null && $todayData->date == date('d-m-Y')) {
+        if ($thisMonthData != null && $thisMonthData->date == date('m-Y')) {
             return response()->json([
                 'total_balance' => $restaurant->bankAccount->total_balance,
-                'today_data' => new DashboardIncomeResource($todayData),
+                'this_month_data' => new DashboardIncomeResource($thisMonthData),
                 'income_data' => DashboardIncomeResource::collection($incomeData->get()),
                 'withdraw_data' => DashboardWithdrawResource::collection($withdrawData->get())
             ]);
         } else {
             return response()->json([
                 'total_balance' => $restaurant->bankAccount->total_balance,
-                'today_data' => [
-                    'date' => date('d-m-Y'),
+                'this_month_data' => [
+                    'date' => date('m-Y'),
                     'total_order' => 0,
                     'total_income' => 0
                 ],
