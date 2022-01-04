@@ -21,7 +21,7 @@ class OrderResource extends JsonResource
             'restaurant_name' => $this->restaurant->name,
             'restaurant_image' => $this->restaurant->image,
             'table_id' => $this->restaurant_table_id,
-            'table_number' => $this->restaurantTable->table_number,
+            'table_number' => $this->table_number,
             'transaction_id' => $this->transaction_id,
             'payment_method' => $this->payment_method,
             'invoice_url' => $this->invoice_url,

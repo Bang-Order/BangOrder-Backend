@@ -77,7 +77,7 @@ class OrderController extends Controller
             ], 404);
         }
 
-        $request->merge(['transaction_id' => time()]);
+        $request->merge(['transaction_id' => time(), 'table_number' => $restaurantTable->table_number]);
         $inserted_order = $restaurant->orders()->create($request->all());
 
         if (empty($inserted_order)) {

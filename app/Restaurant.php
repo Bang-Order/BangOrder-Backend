@@ -34,7 +34,7 @@ class Restaurant extends Authenticatable implements MustVerifyEmail
 
     public function restaurantTables()
     {
-        return $this->hasMany('App\RestaurantTable');
+        return $this->hasMany('App\RestaurantTable')->orderBy('table_number');
     }
 
     public function menuCategories()
